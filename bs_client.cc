@@ -16,6 +16,28 @@ using boost::asio::ip::tcp;
 const int BOARD_ONE_OFFSET = 1;
 const int BOARD_TWO_OFFSET = 12;
 
+
+string get_ship_place_cor(vector<vector<int> > &board)
+{
+	string coridinates		= "";
+
+	string x = "";
+	string y = "";
+
+	for (int i=0;i<4;i++) {
+		for (int j=0;j<4;j++) {
+			if( board[i][j] == 1){
+				x = to_string(i);
+				y = to_string(j);
+				coridinates.append(x).append("-").append(y).append("-");
+			}
+		}
+	}
+	coridinates.pop_back();
+	coridinates.append("\n");
+	return coridinates;
+}
+
 void ship_clean(vector<vector<int> > &board, int x, int y)
 {
 	for (int i=0;i<4;i++) {
@@ -105,7 +127,7 @@ void draw_matrix(vector<vector<int> > &board,
 
 }
 
-main() {
+main(int argc, char* argv[]) {
   int rows;
   int cols;
   int cur_row=0;
@@ -121,8 +143,8 @@ main() {
 	int y 								= 0;
 
 
-	bool place_ship_turn 	= true;
 	// Blob information
+	string ship_placement_cor	= "";
 	int x_cord_ally		= 0;
 	int y_cord_ally		= 0;
 	int x_cord_enemy	= 0;
@@ -138,6 +160,21 @@ main() {
     board.push_back(t);
 		enemy_board.push_back(t);
   }
+
+	// Setting up client connection
+
+	int portno = atoi(argv[2]);
+  // Standard boost code to connect to a server.
+  // Comes from the boost tutorial
+  boost::asio::io_service my_service;
+
+	tcp::resolver resolver(my_service);
+	// Find the server/port number.
+	//  tcp::resolver::results_type endpoints = resolver.resolve(argv[2], argv[3]);
+
+	tcp::socket socket(my_service);
+
+	socket.connect(tcp::endpoint(boost::asio::ip::address::from_string(argv[1]),portno));
 
   // Screen initialization
   initscr();
@@ -181,10 +218,17 @@ main() {
 			}
 			else
 			{
+				string target_loc = "";
+				string tmp_x = "";
+				string tmp_y = "";
 				draw_matrix(board, 0, 0, BOARD_ONE_OFFSET);
 				enemy_board[cur_row][cur_col]= 1;
 				draw_matrix(enemy_board, cur_row, cur_col, BOARD_TWO_OFFSET);
 				refresh();
+				tmp_y = to_string(cur_row);
+				tmp_x = to_string(cur_col);
+				target_loc.append(tmp_y).append("-").append(tmp_x).append("\n");
+				boost::asio::write( socket, boost::asio::buffer(target_loc) );
 			}
 			while ((ch2 = getch()) != 'r' && turn == true && ship_placement == false) {
 				switch(ch2) {
@@ -367,6 +411,10 @@ main() {
 						draw_matrix(board,cur_row,cur_col, BOARD_ONE_OFFSET);
 						refresh();
 						ship_placement = true;
+						ship_placement_cor = get_ship_place_cor(board);
+
+						// Send ship placement location to server
+						boost::asio::write( socket, boost::asio::buffer(ship_placement_cor) );
 						break;
 					case 27:
 						turn = false;
@@ -376,7 +424,8 @@ main() {
 						draw_matrix(board,cur_row,cur_col, BOARD_ONE_OFFSET);
 					}
 				}
-      // Redraw the screen.
+			// start sending stuff back ya
+
       break;
     case KEY_RIGHT:
       cur_col++;
