@@ -13,6 +13,8 @@
 using namespace std;
 using boost::asio::ip::tcp;
 
+const int BOARD_ONE_OFFSET = 1;
+const int BOARD_TWO_OFFSET = 12;
 
 void ship_clean(vector<vector<int> > &board, int x, int y)
 {
@@ -109,13 +111,22 @@ main() {
   int cur_row=0;
   int cur_col=0;
   int ch;
+
 	int ch2;
-	int rotation = 0;
-	bool turn = true;
-	bool ship_placement = false;
-	int x = 0;
-	int y = 0;
-	bool valid_placement = true;
+	int rotation 					= 0;
+	bool turn 						= true;
+	bool ship_placement		= false;
+	bool valid_placement	= true;
+	int x 								= 0;
+	int y 								= 0;
+
+
+	bool place_ship_turn 	= true;
+	// Blob information
+	int x_cord_ally		= 0;
+	int y_cord_ally		= 0;
+	int x_cord_enemy	= 0;
+	int y_cord_enemy	= 0;
 
   vector<vector<int> > board;
 	vector<vector<int> > enemy_board;
@@ -148,112 +159,133 @@ main() {
   refresh();
 
 	// Drawing initial boards
-	draw_matrix(enemy_board, 0, 0, 12);
-  draw_matrix(board,0, 0, 0);
+	mvprintw(0, 0, "+ Allies +");
+	mvprintw(11, 0, "- Enemy -");
+	draw_matrix(enemy_board, 0, 0, BOARD_TWO_OFFSET);
+  draw_matrix(board,0, 0, BOARD_ONE_OFFSET);
 
   // I/O Loop
   // Stop when the q Key is hit.
 
   while ((ch = getch())!='q') {
-		draw_matrix(enemy_board, 0 ,0, 12);
     switch (ch) {
     case ' ':
 			turn = true;
-			board[cur_row][cur_col]= 1;
 			x = cur_col;
 			y = cur_row;
-      draw_matrix(board,cur_row,cur_col, 0);
-			refresh();
+			if (!ship_placement) {
+				draw_matrix(enemy_board, 0 ,0, BOARD_TWO_OFFSET);
+				board[cur_row][cur_col]= 1;
+				draw_matrix(board,cur_row,cur_col, BOARD_ONE_OFFSET);
+				refresh();
+			}
+			else
+			{
+				draw_matrix(board, 0, 0, BOARD_ONE_OFFSET);
+				enemy_board[cur_row][cur_col]= 1;
+				draw_matrix(enemy_board, cur_row, cur_col, BOARD_TWO_OFFSET);
+				refresh();
+			}
 			while ((ch2 = getch()) != 'r' && turn == true && ship_placement == false) {
 				switch(ch2) {
 					case KEY_LEFT:
-						//rotation--;
-						if (rotation == 1) {
-							valid_placement = check_move(x, y, rotation);
-							if (valid_placement == true){
-								ship_clean(board, x, y);
-								board[cur_row-1][cur_col +1] = 1;
-								board[cur_row-2][cur_col +2] = 1;
-							}
-							rotation = 8;
-							//else{rotation--;}
+					rotation--;
+					//cout << rotation << endl;
+					if (rotation < 1){
+						rotation = 8;
+					}
+					//cout << "in left key" << endl;
+					if (rotation == 8) {
+						valid_placement = check_move(x, y, rotation);
+						if(valid_placement == true){
+							ship_clean(board, x, y);
+							board[cur_row-1][cur_col+1] = 1;
+							board[cur_row-2][cur_col+2] = 1;
 						}
-						if (rotation == 2) {
-							valid_placement = check_move(x, y, rotation);
-							if(valid_placement == true){
-								ship_clean(board, x, y);
-								board[cur_row-1][cur_col] = 1;
-								board[cur_row-2][cur_col] = 1;
-							}
-							rotation = 1;
-							//else{rotation--;}
+						else{rotation = 7;}
+						//else{rotation = 1;}
+					}
+					if (rotation == 7) {
+						valid_placement = check_move(x, y, rotation);
+						if(valid_placement == true){
+							ship_clean(board, x, y);
+							board[cur_row-1][cur_col] = 1;
+							board[cur_row-2][cur_col] = 1;
 						}
-						if (rotation == 3) {
-							valid_placement = check_move(x, y, rotation);
-							if(valid_placement == true){
-								ship_clean(board, x, y);
-								board[cur_row+1][cur_col+1] = 1;
-								board[cur_row+2][cur_col+2] = 1;
-							}
-							rotation = 2;
-							//else{rotation--;}
+						else{rotation = 6;}
+						//else{rotation--;}
+					}
+					if (rotation == 6) {
+						valid_placement = check_move(x, y, rotation);
+						if(valid_placement == true){
+							ship_clean(board, x, y);
+							board[cur_row-1][cur_col-1] = 1;
+							board[cur_row-2][cur_col-2] = 1;
 						}
+						else{rotation = 5;}
+						//else{rotation--;}
+					}
+					if (rotation == 5) {
+						valid_placement = check_move(x, y, rotation);
+						if(valid_placement == true){
+							//cout << "here" << endl;
+							ship_clean(board, x, y);
+							board[cur_row][cur_col-1] = 1;
+							board[cur_row][cur_col-2] = 1;
+						}
+						else{rotation = 4;}
+						//else{rotation--;}
+					}
 						if (rotation == 4) {
-							valid_placement = check_move(x, y, rotation);
-							if(valid_placement == true){
-								ship_clean(board, x, y);
-								board[cur_row+1][cur_col] = 1;
-								board[cur_row+2][cur_col] = 1;
-							}
-							rotation = 3;
-							//else{rotation--;}
-						}
-						if (rotation == 5) {
 							valid_placement = check_move(x, y, rotation);
 							if(valid_placement == true){
 								ship_clean(board, x, y);
 								board[cur_row+1][cur_col-1] = 1;
 								board[cur_row+2][cur_col-2] = 1;
 							}
-							rotation = 4;
+							else{rotation = 3;}
 							//else{rotation--;}
 						}
-						if (rotation == 6) {
+						if (rotation == 3) {
 							valid_placement = check_move(x, y, rotation);
 							if(valid_placement == true){
 								ship_clean(board, x, y);
-								board[cur_row][cur_col-1] = 1;
-								board[cur_row][cur_col-2] = 1;
+								board[cur_row+1][cur_col] = 1;
+								board[cur_row+2][cur_col] = 1;
 							}
-							rotation = 5;
+							else{rotation = 2;}
 							//else{rotation--;}
 						}
-						if (rotation == 7) {
+						if (rotation == 2) {
 							valid_placement = check_move(x, y, rotation);
 							if(valid_placement == true){
 								ship_clean(board, x, y);
-								board[cur_row-1][cur_col-1] = 1;
-								board[cur_row-2][cur_col-2] = 1;
+								board[cur_row+1][cur_col+1] = 1;
+								board[cur_row+2][cur_col+2] = 1;
 							}
-							rotation = 6;
+							else{rotation = 1;}
 							//else{rotation--;}
 						}
-						if (rotation == 8) {
+						if (rotation == 1) {
 							valid_placement = check_move(x, y, rotation);
-							if(valid_placement == true){
+							if (valid_placement == true){
 								ship_clean(board, x, y);
-								board[cur_row-1][cur_col] = 1;
-								board[cur_row-2][cur_col] = 1;
+								board[cur_row][cur_col +1] = 1;
+								board[cur_row][cur_col +2] = 1;
 							}
-							rotation = 7;
-							//else{rotation = 1;}
+							else{rotation = 0;}
+							//else{rotation--;}
 						}
-						draw_matrix(board,cur_row,cur_col, 0);
+						draw_matrix(board,cur_row,cur_col, BOARD_ONE_OFFSET);
 						refresh();
 						break;
 
 					case KEY_RIGHT:
 						rotation++;
+						//cout << rotation << endl;
+						if (rotation > 8){
+							rotation = 1;
+						}
 						if (rotation == 1) {
 							valid_placement = check_move(x, y, rotation);
 							if (valid_placement == true){
@@ -326,13 +358,13 @@ main() {
 							}
 							else{rotation = 0;}
 						}
-						draw_matrix(board,cur_row,cur_col, 0);
+						draw_matrix(board,cur_row,cur_col, BOARD_ONE_OFFSET);
 						refresh();
 						break;
 					case ' ':
 						//turn = false;
 						board[cur_row][cur_col]= 1;
-						draw_matrix(board,cur_row,cur_col, 0);
+						draw_matrix(board,cur_row,cur_col, BOARD_ONE_OFFSET);
 						refresh();
 						ship_placement = true;
 						break;
@@ -341,7 +373,7 @@ main() {
 						ship_clean(board, x, y);
 						refresh();
 						board[y][x] = 0;
-						draw_matrix(board,cur_row,cur_col, 0);
+						draw_matrix(board,cur_row,cur_col, BOARD_ONE_OFFSET);
 					}
 				}
       // Redraw the screen.
@@ -349,35 +381,55 @@ main() {
     case KEY_RIGHT:
       cur_col++;
       cur_col%=4;
-      draw_matrix(board,cur_row,cur_col, 0);
-      // Redraw the screen.
-      refresh();
+			if (!ship_placement) {
+				draw_matrix(board,cur_row,cur_col, BOARD_ONE_OFFSET);
+				// Redraw the screen.
+			}
+			else {
+				draw_matrix(board, 0, 0, BOARD_ONE_OFFSET);
+				draw_matrix(enemy_board, cur_row, cur_col, BOARD_TWO_OFFSET);
+			}
+			refresh();
       break;
 
     case KEY_LEFT:
       cur_col--;
       cur_col = (4+cur_col)%4;
-      draw_matrix(board,cur_row,cur_col, 0);
-      // Redraw the screen.
-      refresh();
+			if (!ship_placement) {
+				draw_matrix(board,cur_row,cur_col, BOARD_ONE_OFFSET);
+				// Redraw the screen.
+			}
+			else {
+				draw_matrix(board, 0, 0, BOARD_ONE_OFFSET);
+				draw_matrix(enemy_board, cur_row, cur_col, BOARD_TWO_OFFSET);
+			}
+			refresh();
       break;
-
     case KEY_UP:
       cur_row--;
       cur_row=(4+cur_row) % 4;
-      draw_matrix(board,cur_row,cur_col, 0);
-
-      // Paint_markers(rows,cols,10,cur_row,cur_col);
-      // Redraw the screen.
-      refresh();
+			if (!ship_placement) {
+				draw_matrix(board,cur_row,cur_col, BOARD_ONE_OFFSET);
+				// Redraw the screen.
+			}
+			else {
+				draw_matrix(board, 0, 0, BOARD_ONE_OFFSET);
+				draw_matrix(enemy_board, cur_row, cur_col, BOARD_TWO_OFFSET);
+			}
+			refresh();
       break;
     case KEY_DOWN:
       cur_row++;
       cur_row%=4;
-      draw_matrix(board,cur_row,cur_col, 0);
-      // Paint_markers(rows,cols,10,cur_row,cur_col);
-      // Redraw the screen.
-      refresh();
+			if (!ship_placement) {
+				draw_matrix(board,cur_row,cur_col, BOARD_ONE_OFFSET);
+				// Redraw the screen.
+			}
+			else {
+				draw_matrix(board, 0, 0, BOARD_ONE_OFFSET);
+				draw_matrix(enemy_board, cur_row, cur_col, BOARD_TWO_OFFSET);
+			}
+			refresh();
       break;
     }
   }
