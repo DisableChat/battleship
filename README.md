@@ -37,8 +37,8 @@ Rules:
 
 How is player 1 and player 2 determined?
 -------------------------------------------------------------
-  Player 1 => first user connect to server
-  player 2 => second user to connect to server
+  Player 1 => first user connect to server  
+  player 2 => second user to connect to server  
 
 Key Bindings:
 ===============================================================================
@@ -50,7 +50,7 @@ Key Bindings:
     KEY_UP    : move up
     KEY_DOWN  : move down
 
-    SPACE(1st press) : place initial position
+    SPACE (1st press) : place initial position
     ----------------------------------------------------------
     KEY_LEFT  : rotate ship <counter clock wise>
     KEY_RIGHT : rotate ship <clock wise>
@@ -62,10 +62,9 @@ Key Bindings:
 
 2) Firing On Enemy Steps:
 --------------------------------------------------------------
+    KEY_LEFT  : move left  
+    KEY_RIGHT : move right  
+    KEY_UP    : move up  
+    KEY_DOWN  : move down  
 
-  KEY_LEFT  : move left
-  KEY_RIGHT : move right
-  KEY_UP    : move up
-  KEY_DOWN  : move down
-
-  SPACE_BAR : Fire
+    SPACE_BAR : Fire  
