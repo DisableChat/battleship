@@ -34,7 +34,7 @@ string endgameMsg(int game_state)
 
 bool game_status(int state)
 {
-    if(state == 1 || state == 2)
+    if(state == 1 || state == 2 || state == 3)
     {
       return true;
     }
@@ -200,35 +200,64 @@ void RSP() {
     place_ship(player_one_board, data);
     place_ship(player_two_board, data2);
 
+    // This is just a block for placing a target hit location for enemy board
+    // after ship placement. Everything proceeding the '_|' is meaningless
+    // and is there as a joke
+    string gatez = "1| We about to play a mean game of batlle ship my guy";
+    string gatez2 = "2| What lies behind this gate kappa ripppp";
+
+    boost::asio::write( socket1, boost::asio::buffer(gatez) );
+    boost::asio::write( socket2, boost::asio::buffer(gatez2) );
+
     while (!game_over)
     {
       int p1_response;
       int p2_response;
-      string buf1;
-      string buf2;
+      string buf1_;
+      string buf2_;
 
-
+      // Player 1
       boost::asio::streambuf buf;
       boost::asio::read_until( socket1, buf, "\n" );
       string data = boost::asio::buffer_cast<const char*>(buf.data());
 
+      // Player 2
+      boost::asio::streambuf buf2;
+      boost::asio::read_until( socket2, buf2, "\n" );
+      string data2 = boost::asio::buffer_cast<const char*>(buf2.data());
+
+      // Player 1
       p1_response = place_shot(player_two_board, data);
       update_player_points(p1_pts, p1_response);
-      cout << p1_response << endl;
-      buf1 = to_string(p1_response);
-      buf1.append("\n");
+      cout << "p1 response "<<p1_response << endl;
+      buf1_ = to_string(p1_response);
+      buf1_.append("\n");
 
+      // Player 2
+      p2_response = place_shot(player_one_board, data2);
+      update_player_points(p2_pts, p2_response);
+      cout << "p2 response "<< p2_response << endl;
+      buf2_ = to_string(p2_response);
+      buf2_.append("\n");
+
+      cout << "p1 pts, p2 pts " << p1_pts << " " << p2_pts << endl;
       game_state = determine_winner(p1_pts, p2_pts);
+      cout << "game status " << game_state << endl;
       game_over = game_status(game_state);
+      cout << "game over? " << game_over << endl;
 
       if(game_over == true)
       {
-        buf1 = "-1";
-        buf1.append("\n").append(endgameMsg(game_state)).append("*");
-        cout << buf1.substr(3, buf1.find("*") - 3) << endl;
+        cout << "Got here " << endl;
+        buf1_ = "-1";
+        buf1_.append("\n").append(endgameMsg(game_state)).append("*");
+        buf2_ = "-1";
+        buf2_.append("\n").append(endgameMsg(game_state)).append("*");
+        cout << buf1_.substr(3, buf1_.find("*") - 3) << endl;
       }
 
-      boost::asio::write( socket1, boost::asio::buffer(buf1) );
+      boost::asio::write( socket1, boost::asio::buffer(buf1_) );
+      boost::asio::write( socket2, boost::asio::buffer(buf2_) );
 
     }
 }

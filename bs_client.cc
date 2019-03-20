@@ -191,6 +191,10 @@ main(int argc, char* argv[]) {
 	int y									= 0;
 
 	string anoucment = "";
+	bool continue_gate = false;
+	const char* player_number = "Player ?";
+	const char* numVal;
+	string p_v =							"?";
 
 
 	// Blob information
@@ -248,6 +252,13 @@ main(int argc, char* argv[]) {
 	// Drawing initial boards
 	mvprintw(0, 0, "+ Allies +");
 	mvprintw(BOARD_TWO_OFFSET - 1, 0, "- Enemy -");
+
+	mvprintw(0, 12, "==============");
+	mvprintw(1, 12, "][");
+	mvprintw(1, 15, player_number);
+	mvprintw(1, 24, "][");
+	mvprintw(2, 12, "==============");
+	refresh();
 	draw_matrix(enemy_board, 0, 0, BOARD_TWO_OFFSET);
   draw_matrix(board,0, 0, BOARD_ONE_OFFSET);
 
@@ -257,12 +268,14 @@ main(int argc, char* argv[]) {
   while ((ch = getch())!='q') {
     switch (ch) {
     case ' ':
-			mvprintw(BOARD_BOTTOM - 2, 0,  "                              ");
-			mvprintw(BOARD_BOTTOM - 1, 0,  "                              ");
-			mvprintw(BOARD_BOTTOM, 0,  "                              ");
 			turn = true;
 			x = cur_col;
 			y = cur_row;
+
+			mvprintw(BOARD_BOTTOM - 2, 0,  "                              ");
+			mvprintw(BOARD_BOTTOM - 1, 0,  "                              ");
+			mvprintw(BOARD_BOTTOM, 0,  "                              ");
+
 			if (!ship_placement) {
 				draw_matrix(enemy_board, 0 ,0, BOARD_TWO_OFFSET);
 				board[cur_row][cur_col]= 1;
@@ -271,6 +284,8 @@ main(int argc, char* argv[]) {
 			}
 			else
 			{
+				if(p_v == "1"){mvprintw(1, 22, "1");}
+				else if(p_v == "2"){mvprintw(1, 22, "2");}
 				if(!check_repeat_fire(enemy_board, x, y))
 				{
 					string target_loc = "";
@@ -302,6 +317,7 @@ main(int argc, char* argv[]) {
 						mvprintw(BOARD_BOTTOM - 1, 2, endG_anoucment);
 						mvprintw(BOARD_BOTTOM - 1, 16, "#");
 						mvprintw(BOARD_BOTTOM, 0, "#################");
+						move(BOARD_BOTTOM - 3, 8);
 					}
 
 					refresh();
@@ -502,6 +518,17 @@ main(int argc, char* argv[]) {
 
 						// Send ship placement location to server
 						boost::asio::write( socket, boost::asio::buffer(ship_placement_cor) );
+
+						while(!continue_gate)
+						{
+							continue_gate = true;
+							boost::asio::streambuf response_block;
+							boost::asio::read_until( socket, response_block, "|" );
+							string block = boost::asio::buffer_cast<const char*>(response_block.data());
+							string tmp = block.substr(0, block.find("|"));
+							p_v = tmp;
+						}
+
 						break;
 					case 27:
 						turn = false;
