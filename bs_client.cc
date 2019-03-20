@@ -13,9 +13,51 @@
 using namespace std;
 using boost::asio::ip::tcp;
 
-const int BOARD_ONE_OFFSET = 1;
-const int BOARD_TWO_OFFSET = 12;
+const int BOARD_ONE_OFFSET	= 1;
+const int BOARD_TWO_OFFSET	= 12;
+const int BOARD_BOTTOM			= 24;
+bool GAMEOVER 							= false;
 
+
+
+bool check_repeat_fire(vector<vector<int> > &enemy_board,
+												int x,
+												int y)
+{
+	if (enemy_board[y][x] == 3 || enemy_board[y][x] == 2)
+	{
+		return true;
+	}
+	else{return false;}
+}
+
+void update_enemy_board(vector<vector<int> > &enemy_board,
+												int x,
+												int y,
+												string answer,
+												string &anoucment)
+{
+	string tmp;
+	string endDelimiter = "*";
+	string delimiter = "\n";
+	int pos = 0;
+	int score = 0;
+
+	tmp = answer.substr(pos, answer.find(delimiter));
+	score = stoi(tmp);
+
+	if(score != -1)	{
+		enemy_board[y][x] = score;
+	}
+	else
+	{
+		pos += answer.find(delimiter) + 1;
+		enemy_board[y][x] = 2;
+		anoucment = answer.substr(pos, answer.find(endDelimiter) - 3);
+		GAMEOVER = true;
+
+	}
+}
 
 string get_ship_place_cor(vector<vector<int> > &board)
 {
@@ -109,7 +151,13 @@ void draw_matrix(vector<vector<int> > &board,
      	move(2*i+1+y_start, 2*j+1);
      	if (board[i][j] == 0) {
 				printw(" ");
-     	} else {
+     	} else if(board[i][j] == 2){
+				printw("H");
+			}
+			else if(board[i][j] == 3) {
+				printw("M");
+			}
+			else {
 				printw("X");
      }
    	}
@@ -135,12 +183,14 @@ main(int argc, char* argv[]) {
   int ch;
 
 	int ch2;
-	int rotation 					= 0;
-	bool turn 						= true;
+	int rotation					= 0;
+	bool turn							= true;
 	bool ship_placement		= false;
 	bool valid_placement	= true;
-	int x 								= 0;
-	int y 								= 0;
+	int x									= 0;
+	int y									= 0;
+
+	string anoucment = "";
 
 
 	// Blob information
@@ -197,7 +247,7 @@ main(int argc, char* argv[]) {
 
 	// Drawing initial boards
 	mvprintw(0, 0, "+ Allies +");
-	mvprintw(11, 0, "- Enemy -");
+	mvprintw(BOARD_TWO_OFFSET - 1, 0, "- Enemy -");
 	draw_matrix(enemy_board, 0, 0, BOARD_TWO_OFFSET);
   draw_matrix(board,0, 0, BOARD_ONE_OFFSET);
 
@@ -207,6 +257,9 @@ main(int argc, char* argv[]) {
   while ((ch = getch())!='q') {
     switch (ch) {
     case ' ':
+			mvprintw(BOARD_BOTTOM - 2, 0,  "                              ");
+			mvprintw(BOARD_BOTTOM - 1, 0,  "                              ");
+			mvprintw(BOARD_BOTTOM, 0,  "                              ");
 			turn = true;
 			x = cur_col;
 			y = cur_row;
@@ -218,17 +271,51 @@ main(int argc, char* argv[]) {
 			}
 			else
 			{
-				string target_loc = "";
-				string tmp_x = "";
-				string tmp_y = "";
-				draw_matrix(board, 0, 0, BOARD_ONE_OFFSET);
-				enemy_board[cur_row][cur_col]= 1;
-				draw_matrix(enemy_board, cur_row, cur_col, BOARD_TWO_OFFSET);
-				refresh();
-				tmp_y = to_string(cur_row);
-				tmp_x = to_string(cur_col);
-				target_loc.append(tmp_y).append("-").append(tmp_x).append("\n");
-				boost::asio::write( socket, boost::asio::buffer(target_loc) );
+				if(!check_repeat_fire(enemy_board, x, y))
+				{
+					string target_loc = "";
+					string tmp_x = "";
+					string tmp_y = "";
+					draw_matrix(board, 0, 0, BOARD_ONE_OFFSET);
+					enemy_board[cur_row][cur_col]= 1;
+					draw_matrix(enemy_board, cur_row, cur_col, BOARD_TWO_OFFSET);
+					refresh();
+					tmp_y = to_string(cur_row);
+					tmp_x = to_string(cur_col);
+					target_loc.append(tmp_y).append("-").append(tmp_x).append("\n");
+					boost::asio::write( socket, boost::asio::buffer(target_loc) );
+
+
+					// Get the response from the server!
+					boost::asio::streambuf response_value;
+					boost::asio::read_until( socket, response_value, "\n" );
+					string answer = boost::asio::buffer_cast<const char*>(response_value.data());
+					update_enemy_board(enemy_board, x, y, answer, anoucment);
+					draw_matrix(enemy_board, cur_row, cur_col, BOARD_TWO_OFFSET);
+
+					if (GAMEOVER == true)
+					{
+						const char *endG_anoucment;
+						endG_anoucment = anoucment.c_str();
+						mvprintw(BOARD_BOTTOM - 2, 0, "#################");
+						mvprintw(BOARD_BOTTOM - 1, 0, "# ");
+						mvprintw(BOARD_BOTTOM - 1, 2, endG_anoucment);
+						mvprintw(BOARD_BOTTOM - 1, 16, "#");
+						mvprintw(BOARD_BOTTOM, 0, "#################");
+					}
+
+					refresh();
+				}
+				else
+				{
+					mvprintw(BOARD_BOTTOM - 2, 0, "##############################");
+					mvprintw(BOARD_BOTTOM - 1, 0, "# ");
+					mvprintw(BOARD_BOTTOM - 1, 2 , "!!! Already Fired Here !!!");
+					mvprintw(BOARD_BOTTOM - 1, 29, "#");
+					mvprintw(BOARD_BOTTOM, 0, "##############################");
+					draw_matrix(enemy_board, cur_row, cur_col, BOARD_TWO_OFFSET);
+					refresh();
+				}
 			}
 			while ((ch2 = getch()) != 'r' && turn == true && ship_placement == false) {
 				switch(ch2) {
