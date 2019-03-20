@@ -16,6 +16,8 @@ using boost::asio::ip::tcp;
 const int BOARD_ONE_OFFSET	= 1;
 const int BOARD_TWO_OFFSET	= 12;
 const int BOARD_BOTTOM			= 24;
+const int ATACK_START_Y			= 13;
+const int ATACK_START_X			= 1;
 bool GAMEOVER 							= false;
 
 
@@ -31,7 +33,8 @@ bool check_repeat_fire(vector<vector<int> > &enemy_board,
 	else{return false;}
 }
 
-void update_enemy_board(vector<vector<int> > &enemy_board,
+void update_enemy_board(vector<vector<int> > &board,
+												vector<vector<int> > &enemy_board,
 												int x,
 												int y,
 												string answer,
@@ -40,14 +43,42 @@ void update_enemy_board(vector<vector<int> > &enemy_board,
 	string tmp;
 	string endDelimiter = "*";
 	string delimiter = "\n";
+	string delimiter2 = "-";
+	int hit = -1;
 	int pos = 0;
 	int score = 0;
+	int tmp_pos = 0;
 
 	tmp = answer.substr(pos, answer.find(delimiter));
 	score = stoi(tmp);
 
 	if(score != -1)	{
 		enemy_board[y][x] = score;
+		int x2;
+		int y2;
+		int y2_ = -11;
+		tmp_pos = answer.find(delimiter);
+		pos = answer.find(delimiter2, tmp_pos);
+		//cout << "poss value " << pos<<endl;
+		tmp = answer.substr(tmp_pos, pos - tmp_pos);
+		//cout << "y cordinate " << tmp << endl;
+		y2 = stoi(tmp);
+
+		tmp_pos = pos + 1;
+		pos = answer.find(delimiter2, tmp_pos);
+		tmp = answer.substr(tmp_pos, pos - tmp_pos);
+		//cout << "poss value " << pos<<endl;
+		//cout << "x cordinate " << tmp << endl;
+		x2 = stoi(tmp);
+
+		tmp_pos = pos + 1;
+		pos = answer.find(delimiter2, tmp_pos);
+		tmp = answer.substr(tmp_pos, pos - tmp_pos);
+		//cout << "poss value " << pos<<endl;
+		//cout << "hit cordinate " << tmp << endl;
+		hit = stoi(tmp);
+		board[y2][x2] = hit;
+
 	}
 	else
 	{
@@ -305,7 +336,10 @@ main(int argc, char* argv[]) {
 					boost::asio::streambuf response_value;
 					boost::asio::read_until( socket, response_value, "\n" );
 					string answer = boost::asio::buffer_cast<const char*>(response_value.data());
-					update_enemy_board(enemy_board, x, y, answer, anoucment);
+					update_enemy_board(board, enemy_board, x, y, answer, anoucment);
+					// CURSOR NEEDS MOVED AGAIN AFTER THIS DRAW MATTRIX!!!!
+					draw_matrix(board, 0, 0, BOARD_ONE_OFFSET);
+					
 					draw_matrix(enemy_board, cur_row, cur_col, BOARD_TWO_OFFSET);
 
 					if (GAMEOVER == true)
@@ -528,8 +562,12 @@ main(int argc, char* argv[]) {
 							string tmp = block.substr(0, block.find("|"));
 							p_v = tmp;
 						}
-
+						move(ATACK_START_Y, ATACK_START_X);
+						cur_row = 0;
+						cur_col = 0;
 						break;
+
+					// Esc key case
 					case 27:
 						turn = false;
 						ship_clean(board, x, y);

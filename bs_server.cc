@@ -14,6 +14,14 @@
 using namespace std;
 using boost::asio::ip::tcp;
 
+
+string send_back_cor(string cor)
+{
+  cor.pop_back();
+  cor.append("-");
+  return cor;
+}
+
 string endgameMsg(int game_state)
 {
   string msg;
@@ -228,17 +236,18 @@ void RSP() {
 
       // Player 1
       p1_response = place_shot(player_two_board, data);
+      cout << "player 1 target location " << data << endl;
       update_player_points(p1_pts, p1_response);
       cout << "p1 response "<<p1_response << endl;
       buf1_ = to_string(p1_response);
-      buf1_.append("\n");
+      data = send_back_cor(data);
 
       // Player 2
       p2_response = place_shot(player_one_board, data2);
       update_player_points(p2_pts, p2_response);
       cout << "p2 response "<< p2_response << endl;
       buf2_ = to_string(p2_response);
-      buf2_.append("\n");
+      data2 = send_back_cor(data2);
 
       cout << "p1 pts, p2 pts " << p1_pts << " " << p2_pts << endl;
       game_state = determine_winner(p1_pts, p2_pts);
@@ -246,6 +255,11 @@ void RSP() {
       game_over = game_status(game_state);
       cout << "game over? " << game_over << endl;
 
+      buf1_.append("\n").append(data2);
+      buf2_.append("\n").append(data);
+      buf1_.append(to_string(p2_response)).append("-");
+      buf2_.append(to_string(p1_response)).append("-");
+      cout << "DATA SENDING BACK " << buf1_ << endl;
       if(game_over == true)
       {
         cout << "Got here " << endl;
