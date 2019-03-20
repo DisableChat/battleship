@@ -1,7 +1,12 @@
 //******************************************************************************
-// File:        bs_client.cc
-// Author:      Wesley Ryder
-// Description:
+// File:					bs_client.cc
+// Author:				Wesley Ryder
+// Date:					3/20/19
+// Description:		This is the battleship client, where the user controls
+//								his/hers ship, and firing locations to try and sink enemy
+//								ship. This implementation uses Sockets to make a client
+//								and server based application. Where the server is essentialy
+//								the ref and the cients being the players
 //******************************************************************************
 
 #include <iostream>
@@ -13,6 +18,8 @@
 using namespace std;
 using boost::asio::ip::tcp;
 
+
+// Creating Global Variales
 const int BOARD_ONE_OFFSET	= 1;
 const int BOARD_TWO_OFFSET	= 12;
 const int BOARD_BOTTOM			= 24;
@@ -22,6 +29,16 @@ bool GAMEOVER 							= false;
 
 
 
+//******************************************************************************
+// Function:      check_repeat_fire()
+// Arguments:     vector<vector<int> > &enemy_board
+//								int x
+//								in y
+// Description:   Checks if the firing location has already been fired on where
+//								true:		Fired on this location already
+//								false: 	Have not fired on this location thus far
+// Return Val:    bool
+//******************************************************************************
 bool check_repeat_fire(vector<vector<int> > &enemy_board,
 												int x,
 												int y)
@@ -33,63 +50,98 @@ bool check_repeat_fire(vector<vector<int> > &enemy_board,
 	else{return false;}
 }
 
-void update_enemy_board(vector<vector<int> > &board,
+//******************************************************************************
+// Function:      update_board()
+// Arguments:     vector<vector<int> > &board
+//								vector<vector<int> > &enemy_board
+//								int x
+//								int y
+//								string answer
+//								string &anoucment
+// Description:   updates boards after reicieving information based on previous
+//								turn, this updates both client side's ally board and enemy
+//								board
+// Return Val:    None
+//******************************************************************************
+void update_board(vector<vector<int> > &board,
 												vector<vector<int> > &enemy_board,
 												int x,
 												int y,
 												string answer,
 												string &anoucment)
 {
+
+	// Declaring local vars
 	string tmp;
 	string endDelimiter = "*";
-	string delimiter = "\n";
-	string delimiter2 = "-";
-	int hit = -1;
-	int pos = 0;
-	int score = 0;
-	int tmp_pos = 0;
+	string delimiter		= "\n";
+	string delimiter2 	= "-";
+	int hit 						= -1;
+	int pos 						= 0;
+	int score 					= 0;
+	int tmp_pos 				= 0;
 
+	// Parsing score
 	tmp = answer.substr(pos, answer.find(delimiter));
 	score = stoi(tmp);
 
+	// If not game over (-1 is a unique indentifier in this case)
 	if(score != -1)	{
+		// Updating client enemy board
 		enemy_board[y][x] = score;
+
 		int x2;
 		int y2;
-		int y2_ = -11;
+
+		// The proceeding code just parses the cordinates and hit value
 		tmp_pos = answer.find(delimiter);
 		pos = answer.find(delimiter2, tmp_pos);
-		//cout << "poss value " << pos<<endl;
 		tmp = answer.substr(tmp_pos, pos - tmp_pos);
-		//cout << "y cordinate " << tmp << endl;
 		y2 = stoi(tmp);
 
 		tmp_pos = pos + 1;
 		pos = answer.find(delimiter2, tmp_pos);
 		tmp = answer.substr(tmp_pos, pos - tmp_pos);
-		//cout << "poss value " << pos<<endl;
-		//cout << "x cordinate " << tmp << endl;
 		x2 = stoi(tmp);
 
 		tmp_pos = pos + 1;
 		pos = answer.find(delimiter2, tmp_pos);
 		tmp = answer.substr(tmp_pos, pos - tmp_pos);
-		//cout << "poss value " << pos<<endl;
-		//cout << "hit cordinate " << tmp << endl;
+
 		hit = stoi(tmp);
 		board[y2][x2] = hit;
 
 	}
+	// Game over case
 	else
 	{
 		pos += answer.find(delimiter) + 1;
 		enemy_board[y][x] = 2;
 		anoucment = answer.substr(pos, answer.find(endDelimiter) - 3);
-		GAMEOVER = true;
 
+		// I will admit this section right here is bad because I added cordinates
+		// to end mssg after end game siuation when I already add them to the string
+		// server side but if the games over for some reason I add them to the end.
+		// Idk what I was thinking at the time.
+		// REFER TO REFERENCE *REF* on server.cc
+		string tmp_x;
+		string tmp_y;
+		string tmp_h;
+		tmp_y = answer.substr(answer.find(endDelimiter) + 1, 1);
+		tmp_x = answer.substr(answer.find(endDelimiter) + 3, 1);
+		tmp_h = answer.substr(answer.find(endDelimiter) + 5, 1);
+		board[stoi(tmp_y)][stoi(tmp_x)] = stoi(tmp_h);
+
+		GAMEOVER = true;
 	}
 }
 
+//******************************************************************************
+// Function:      get_ship_place_cor()
+// Arguments:     vector<vector<int> > &board
+// Description:   Gets the ship placement cordinates and returns it as a string
+// Return Val:    string
+//******************************************************************************
 string get_ship_place_cor(vector<vector<int> > &board)
 {
 	string coridinates		= "";
@@ -111,6 +163,14 @@ string get_ship_place_cor(vector<vector<int> > &board)
 	return coridinates;
 }
 
+//******************************************************************************
+// Function:      ship_clean()
+// Arguments:     vector<vector<int> > &board
+//								int x
+//								int y
+// Description:   Sets values of previous ship placement to 0 ie empty
+// Return Val:    None
+//******************************************************************************
 void ship_clean(vector<vector<int> > &board, int x, int y)
 {
 	for (int i=0;i<4;i++) {
@@ -123,6 +183,16 @@ void ship_clean(vector<vector<int> > &board, int x, int y)
 	board[y][x] = 1;
 }
 
+//******************************************************************************
+// Function:      check_move()
+// Arguments:     int x
+//								int y
+//								int rotation
+// Description:   Checks if the rotation of the ship is a valid option where
+//								true:		valid option
+//								false:	invalid option
+// Return Val:    bool
+//******************************************************************************
 bool check_move(int x, int y,int rotation) {
 	switch(rotation) {
 		case 0:
@@ -163,7 +233,15 @@ bool check_move(int x, int y,int rotation) {
 	}
 }
 
-// Draw the maxtrix
+//******************************************************************************
+// Function:      draw_matrix()
+// Arguments:     vector<vector<int> > &board
+//								int cur_row
+//								int cur_col
+//								int y_start (offset for second board)
+// Description:   Draws the grid
+// Return Val:    None
+//******************************************************************************
 void draw_matrix(vector<vector<int> > &board,
 		     int cur_row,
 		     int cur_col,
@@ -206,7 +284,18 @@ void draw_matrix(vector<vector<int> > &board,
 
 }
 
+//******************************************************************************
+// Function:      main()
+// Arguments:     int argc
+//								char* argv[]
+// Description:  	Basically the meat and potatoes of the client, where main
+//								calls the nessary functions to setup the game and send/recieve
+//								the information from server regarding the state of the game
+//								and updates the local side for the user
+// Return Val:    None
+//******************************************************************************
 main(int argc, char* argv[]) {
+	// Declarying a lot of local variables which is probably bad rip
   int rows;
   int cols;
   int cur_row=0;
@@ -220,12 +309,12 @@ main(int argc, char* argv[]) {
 	bool valid_placement	= true;
 	int x									= 0;
 	int y									= 0;
+	bool continue_gate 		= false;
 
-	string anoucment = "";
-	bool continue_gate = false;
+	string anoucment 					= "";
+	string p_v 								= "?";
 	const char* player_number = "Player ?";
 	const char* numVal;
-	string p_v =							"?";
 
 
 	// Blob information
@@ -235,6 +324,7 @@ main(int argc, char* argv[]) {
 	int x_cord_enemy	= 0;
 	int y_cord_enemy	= 0;
 
+	// Setting up empty boards for ally and enemy
   vector<vector<int> > board;
 	vector<vector<int> > enemy_board;
   for (int i=0;i<4;i++) {
@@ -247,55 +337,51 @@ main(int argc, char* argv[]) {
   }
 
 	// Setting up client connection
-
 	int portno = atoi(argv[2]);
   // Standard boost code to connect to a server.
   // Comes from the boost tutorial
   boost::asio::io_service my_service;
-
 	tcp::resolver resolver(my_service);
+
 	// Find the server/port number.
 	//  tcp::resolver::results_type endpoints = resolver.resolve(argv[2], argv[3]);
-
 	tcp::socket socket(my_service);
-
 	socket.connect(tcp::endpoint(boost::asio::ip::address::from_string(argv[1]),portno));
 
   // Screen initialization
   initscr();
-
   // Clear the screen
   clear();
-
   // Get the size of the window!
   getmaxyx(stdscr,rows,cols);
-
-
-  cbreak();  // Pass all characters to this program!
-
-  keypad(stdscr, TRUE); // Grab the special keys, arrow keys, etc.
+	// Pass all characters to this program!
+  cbreak();
+	// Grab the special keys, arrow keys, etc.
+  keypad(stdscr, TRUE);
 
   // Paint the row and column markers.
   // paint_markers(rows,cols,10,0,0);
   // Redraw the screen.
   refresh();
 
-	// Drawing initial boards
+	// Drawing initial boards with added pizaz
 	mvprintw(0, 0, "+ Allies +");
 	mvprintw(BOARD_TWO_OFFSET - 1, 0, "- Enemy -");
 
+	// Display player number
 	mvprintw(0, 12, "==============");
 	mvprintw(1, 12, "][");
 	mvprintw(1, 15, player_number);
 	mvprintw(1, 24, "][");
 	mvprintw(2, 12, "==============");
 	refresh();
+
+	// Draw the enemy and ally board
 	draw_matrix(enemy_board, 0, 0, BOARD_TWO_OFFSET);
   draw_matrix(board,0, 0, BOARD_ONE_OFFSET);
 
   // I/O Loop
   // Stop when the q Key is hit.
-
   while ((ch = getch())!='q') {
     switch (ch) {
     case ' ':
@@ -303,25 +389,31 @@ main(int argc, char* argv[]) {
 			x = cur_col;
 			y = cur_row;
 
+			// Clearing section of screen for case when user repeat fires
 			mvprintw(BOARD_BOTTOM - 2, 0,  "                              ");
 			mvprintw(BOARD_BOTTOM - 1, 0,  "                              ");
 			mvprintw(BOARD_BOTTOM, 0,  "                              ");
 
+			// Handle based on if ship is placed yet or not
 			if (!ship_placement) {
 				draw_matrix(enemy_board, 0 ,0, BOARD_TWO_OFFSET);
 				board[cur_row][cur_col]= 1;
 				draw_matrix(board,cur_row,cur_col, BOARD_ONE_OFFSET);
 				refresh();
 			}
+			// Fire on enemy handle
 			else
 			{
 				if(p_v == "1"){mvprintw(1, 22, "1");}
 				else if(p_v == "2"){mvprintw(1, 22, "2");}
 				if(!check_repeat_fire(enemy_board, x, y))
 				{
-					string target_loc = "";
-					string tmp_x = "";
-					string tmp_y = "";
+					// local vars
+					string target_loc	= "";
+					string tmp_x 			= "";
+					string tmp_y			= "";
+
+					// Draw and send information on fire location
 					draw_matrix(board, 0, 0, BOARD_ONE_OFFSET);
 					enemy_board[cur_row][cur_col]= 1;
 					draw_matrix(enemy_board, cur_row, cur_col, BOARD_TWO_OFFSET);
@@ -332,16 +424,18 @@ main(int argc, char* argv[]) {
 					boost::asio::write( socket, boost::asio::buffer(target_loc) );
 
 
-					// Get the response from the server!
+					// Get the response from the server
 					boost::asio::streambuf response_value;
 					boost::asio::read_until( socket, response_value, "\n" );
 					string answer = boost::asio::buffer_cast<const char*>(response_value.data());
-					update_enemy_board(board, enemy_board, x, y, answer, anoucment);
-					// CURSOR NEEDS MOVED AGAIN AFTER THIS DRAW MATTRIX!!!!
+
+					// Update boards and draw boards based on recieved information from
+					// Server regarding the shot user just took
+					update_board(board, enemy_board, x, y, answer, anoucment);
 					draw_matrix(board, 0, 0, BOARD_ONE_OFFSET);
-					
 					draw_matrix(enemy_board, cur_row, cur_col, BOARD_TWO_OFFSET);
 
+					// If Game over display end game
 					if (GAMEOVER == true)
 					{
 						const char *endG_anoucment;
@@ -353,9 +447,9 @@ main(int argc, char* argv[]) {
 						mvprintw(BOARD_BOTTOM, 0, "#################");
 						move(BOARD_BOTTOM - 3, 8);
 					}
-
 					refresh();
 				}
+				// If user trys to fire on already fired location handle
 				else
 				{
 					mvprintw(BOARD_BOTTOM - 2, 0, "##############################");
@@ -367,15 +461,19 @@ main(int argc, char* argv[]) {
 					refresh();
 				}
 			}
+			// Rotating ship, for ship placement handle
 			while ((ch2 = getch()) != 'r' && turn == true && ship_placement == false) {
+
+				// Proceding code implementation works by having a rotation value based
+				// on the ship orientation, based on KEY_LEFT or KEY_RIGHT we update
+				// rotation and place the ship
 				switch(ch2) {
+					// Key Left case
 					case KEY_LEFT:
 					rotation--;
-					//cout << rotation << endl;
 					if (rotation < 1){
 						rotation = 8;
 					}
-					//cout << "in left key" << endl;
 					if (rotation == 8) {
 						valid_placement = check_move(x, y, rotation);
 						if(valid_placement == true){
@@ -384,7 +482,6 @@ main(int argc, char* argv[]) {
 							board[cur_row-2][cur_col+2] = 1;
 						}
 						else{rotation = 7;}
-						//else{rotation = 1;}
 					}
 					if (rotation == 7) {
 						valid_placement = check_move(x, y, rotation);
@@ -394,7 +491,6 @@ main(int argc, char* argv[]) {
 							board[cur_row-2][cur_col] = 1;
 						}
 						else{rotation = 6;}
-						//else{rotation--;}
 					}
 					if (rotation == 6) {
 						valid_placement = check_move(x, y, rotation);
@@ -404,18 +500,15 @@ main(int argc, char* argv[]) {
 							board[cur_row-2][cur_col-2] = 1;
 						}
 						else{rotation = 5;}
-						//else{rotation--;}
 					}
 					if (rotation == 5) {
 						valid_placement = check_move(x, y, rotation);
 						if(valid_placement == true){
-							//cout << "here" << endl;
 							ship_clean(board, x, y);
 							board[cur_row][cur_col-1] = 1;
 							board[cur_row][cur_col-2] = 1;
 						}
 						else{rotation = 4;}
-						//else{rotation--;}
 					}
 						if (rotation == 4) {
 							valid_placement = check_move(x, y, rotation);
@@ -425,7 +518,6 @@ main(int argc, char* argv[]) {
 								board[cur_row+2][cur_col-2] = 1;
 							}
 							else{rotation = 3;}
-							//else{rotation--;}
 						}
 						if (rotation == 3) {
 							valid_placement = check_move(x, y, rotation);
@@ -435,7 +527,6 @@ main(int argc, char* argv[]) {
 								board[cur_row+2][cur_col] = 1;
 							}
 							else{rotation = 2;}
-							//else{rotation--;}
 						}
 						if (rotation == 2) {
 							valid_placement = check_move(x, y, rotation);
@@ -445,7 +536,6 @@ main(int argc, char* argv[]) {
 								board[cur_row+2][cur_col+2] = 1;
 							}
 							else{rotation = 1;}
-							//else{rotation--;}
 						}
 						if (rotation == 1) {
 							valid_placement = check_move(x, y, rotation);
@@ -455,15 +545,17 @@ main(int argc, char* argv[]) {
 								board[cur_row][cur_col +2] = 1;
 							}
 							else{rotation = 0;}
-							//else{rotation--;}
 						}
 						draw_matrix(board,cur_row,cur_col, BOARD_ONE_OFFSET);
 						refresh();
 						break;
 
+					// Proceding code implementation works by having a rotation value based
+					// on the ship orientation, based on KEY_LEFT or KEY_RIGHT we update
+					// rotation and place the ship
+					// Key Right case
 					case KEY_RIGHT:
 						rotation++;
-						//cout << rotation << endl;
 						if (rotation > 8){
 							rotation = 1;
 						}
@@ -542,8 +634,8 @@ main(int argc, char* argv[]) {
 						draw_matrix(board,cur_row,cur_col, BOARD_ONE_OFFSET);
 						refresh();
 						break;
+					// Space Bar case (placement within rotation)
 					case ' ':
-						//turn = false;
 						board[cur_row][cur_col]= 1;
 						draw_matrix(board,cur_row,cur_col, BOARD_ONE_OFFSET);
 						refresh();
@@ -553,6 +645,8 @@ main(int argc, char* argv[]) {
 						// Send ship placement location to server
 						boost::asio::write( socket, boost::asio::buffer(ship_placement_cor) );
 
+						// Waiting on the ship placement notifcation from other client to
+						// this creates a barrier for players to wait on eachother
 						while(!continue_gate)
 						{
 							continue_gate = true;
@@ -562,6 +656,7 @@ main(int argc, char* argv[]) {
 							string tmp = block.substr(0, block.find("|"));
 							p_v = tmp;
 						}
+						// Moving the curor back to new location
 						move(ATACK_START_Y, ATACK_START_X);
 						cur_row = 0;
 						cur_col = 0;
@@ -576,15 +671,15 @@ main(int argc, char* argv[]) {
 						draw_matrix(board,cur_row,cur_col, BOARD_ONE_OFFSET);
 					}
 				}
-			// start sending stuff back ya
-
       break;
+
+		// The proceding arrow key cases are for moving a single unit location
+		// Key Right case
     case KEY_RIGHT:
       cur_col++;
       cur_col%=4;
 			if (!ship_placement) {
 				draw_matrix(board,cur_row,cur_col, BOARD_ONE_OFFSET);
-				// Redraw the screen.
 			}
 			else {
 				draw_matrix(board, 0, 0, BOARD_ONE_OFFSET);
@@ -592,13 +687,12 @@ main(int argc, char* argv[]) {
 			}
 			refresh();
       break;
-
+		// Key Left case
     case KEY_LEFT:
       cur_col--;
       cur_col = (4+cur_col)%4;
 			if (!ship_placement) {
 				draw_matrix(board,cur_row,cur_col, BOARD_ONE_OFFSET);
-				// Redraw the screen.
 			}
 			else {
 				draw_matrix(board, 0, 0, BOARD_ONE_OFFSET);
@@ -606,12 +700,12 @@ main(int argc, char* argv[]) {
 			}
 			refresh();
       break;
+		// Key Up case
     case KEY_UP:
       cur_row--;
       cur_row=(4+cur_row) % 4;
 			if (!ship_placement) {
 				draw_matrix(board,cur_row,cur_col, BOARD_ONE_OFFSET);
-				// Redraw the screen.
 			}
 			else {
 				draw_matrix(board, 0, 0, BOARD_ONE_OFFSET);
@@ -619,12 +713,12 @@ main(int argc, char* argv[]) {
 			}
 			refresh();
       break;
+		// Key Down case
     case KEY_DOWN:
       cur_row++;
       cur_row%=4;
 			if (!ship_placement) {
 				draw_matrix(board,cur_row,cur_col, BOARD_ONE_OFFSET);
-				// Redraw the screen.
 			}
 			else {
 				draw_matrix(board, 0, 0, BOARD_ONE_OFFSET);
