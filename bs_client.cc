@@ -12,8 +12,8 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <ncurses.h>
 #include <boost/asio.hpp>
+#include <ncurses.h>
 
 using namespace std;
 using boost::asio::ip::tcp;
