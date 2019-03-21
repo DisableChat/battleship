@@ -310,6 +310,8 @@ main(int argc, char* argv[]) {
 	int x									= 0;
 	int y									= 0;
 	bool continue_gate 		= false;
+	bool exit_console			= false;
+ 	int exit_;
 
 	string anoucment 					= "";
 	string p_v 								= "?";
@@ -382,7 +384,7 @@ main(int argc, char* argv[]) {
 
   // I/O Loop
   // Stop when the q Key is hit.
-  while ((ch = getch())!='q') {
+  while (exit_console == false && (ch = getch())!='q') {
     switch (ch) {
     case ' ':
 			turn = true;
@@ -446,8 +448,17 @@ main(int argc, char* argv[]) {
 						mvprintw(BOARD_BOTTOM - 1, 16, "#");
 						mvprintw(BOARD_BOTTOM, 0, "#################");
 						move(BOARD_BOTTOM - 3, 8);
+
+						// Once game is over Make user only be able to hit q to quit
+						while((exit_ = getch())!='q')
+						{
+							mvprintw(BOARD_BOTTOM - 3, 8, " ");
+							move(BOARD_BOTTOM - 3, 8);
+						}
+						exit_console = true;
 					}
 					refresh();
+
 				}
 				// If user trys to fire on already fired location handle
 				else
@@ -462,7 +473,7 @@ main(int argc, char* argv[]) {
 				}
 			}
 			// Rotating ship, for ship placement handle
-			while ((ch2 = getch()) != 'r' && turn == true && ship_placement == false) {
+			while (exit_console == false && turn == true && (ch2 = getch()) != 'r' && ship_placement == false) {
 
 				// Proceding code implementation works by having a rotation value based
 				// on the ship orientation, based on KEY_LEFT or KEY_RIGHT we update
