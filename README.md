@@ -69,3 +69,7 @@ Key Bindings:
     KEY_DOWN  : move down  
 
     SPACE_BAR : Fire  
+
+3) Endgame:
+--------------------------------------------------------------
+    ESC_KEY : exit game
