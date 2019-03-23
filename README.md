@@ -3,11 +3,11 @@ Socket based battleship
 
 How To Launch:
 ===============================================================================
-  Makefile:
+  Makefile Commands:
   -----------------------------------------------------------
-    <make client>
-    <make server>
-    <make clean>
+    Make Client exec: <make client>
+    Make Server exec: <make server>
+    Clean Executables: <make clean>
 
   Launch Server:
   -----------------------------------------------------------
@@ -45,7 +45,8 @@ Key Bindings:
 ===============================================================================
 1) Placing initial Ship Steps:
 --------------------------------------------------------------
-    *ref* -> Move Around
+
+    *ref* -> Move Around (Loop back if ESC_KEY Pressed during placement)
     KEY_LEFT  : move left
     KEY_RIGHT : move right
     KEY_UP    : move up
@@ -76,6 +77,8 @@ Key Bindings:
 
     SPACE_BAR : Fire  
 
-3) Endgame:
+3) Endgame/Show Winner Screen:
 --------------------------------------------------------------
-    ESC_KEY : exit game
+    Q_KEY : exit game (q key on keyboard)
+            (all you can do during this screen is exit the game
+            by hitting the 'q' key)
