@@ -9,6 +9,11 @@ How To Launch:
     Make Server exec: <make server>
     Clean Executables: <make clean>
 
+  *Launching Game NOTE* open 3 terminals, launch server first, then
+        launch first client, then launch second client. DO NOT launch
+        clients first. If you mess this launching order up restart the
+        Launching Game Note order.
+
   Launch Server:
   -----------------------------------------------------------
   ./bs_server
