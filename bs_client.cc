@@ -158,9 +158,9 @@ string get_ship_place_cor(vector<vector<int> > &board)
       }
     }
   }
-	coridinates.pop_back();
-	coridinates.append("\n");
-	return coridinates;
+  coridinates.pop_back();
+  coridinates.append("\n");
+  return coridinates;
 }
 
 //******************************************************************************
@@ -173,14 +173,14 @@ string get_ship_place_cor(vector<vector<int> > &board)
 //******************************************************************************
 void ship_clean(vector<vector<int> > &board, int x, int y)
 {
-	for (int i=0;i<4;i++) {
-		for (int j=0;j<4;j++) {
-			if( board[i][j] == 1){
-				board[i][j] = 0;
-			}
-		}
-	}
-	board[y][x] = 1;
+  for (int i=0;i<4;i++) {
+    for (int j=0;j<4;j++) {
+      if( board[i][j] == 1){
+        board[i][j] = 0;
+      }
+    }
+  }
+  board[y][x] = 1;
 }
 
 //******************************************************************************
@@ -194,43 +194,44 @@ void ship_clean(vector<vector<int> > &board, int x, int y)
 // Return Val:    bool
 //******************************************************************************
 bool check_move(int x, int y,int rotation) {
-	switch(rotation) {
-		case 0:
-			if((x + 2) >= 4 || (y -2) < 0){return false;}
-			else{return true;}
-		case 1:
-			if((x + 2) >= 4){return false;}
-			else{return true;}
-			break;
+  switch(rotation) {
+    case 0:
+      if((x + 2) >= 4 || (y -2) < 0){return false;}
+      else{return true;}
+      break;
+    case 1:
+      if((x + 2) >= 4){return false;}
+      else{return true;}
+      break;
 		case 2:
-			if((x + 2) >= 4 || (y + 2) >= 4){return false;}
-			else{return true;}
-			break;
-		case 3:
-			if((y + 2) >= 4){return false;}
-			else{return true;}
-			break;
-		case 4:
-			if((x -2) < 0 || (y + 2) >= 4){return false;}
-			else{return true;}
-			break;
-		case 5:
-			if((x - 2) < 0){return false;}
-			else{return true;}
-			break;
-		case 6:
-			if((x - 2) < 0 || (y - 2) < 0){return false;}
-			else{return true;}
-			break;
-		case 7:
-			if((y - 2) < 0){return false;}
-			else{return true;}
-			break;
-		case 8:
-			if((x+2) >= 4 || (y - 2) < 0){return false;}
-			else{return true;}
-			break;
-	}
+      if((x + 2) >= 4 || (y + 2) >= 4){return false;}
+      else{return true;}
+      break;
+    case 3:
+      if((y + 2) >= 4){return false;}
+      else{return true;}
+      break;
+    case 4:
+      if((x -2) < 0 || (y + 2) >= 4){return false;}
+      else{return true;}
+      break;
+    case 5:
+      if((x - 2) < 0){return false;}
+      else{return true;}
+      break;
+    case 6:
+      if((x - 2) < 0 || (y - 2) < 0){return false;}
+      else{return true;}
+      break;
+    case 7:
+      if((y - 2) < 0){return false;}
+      else{return true;}
+      break;
+    case 8:
+      if((x+2) >= 4 || (y - 2) < 0){return false;}
+      else{return true;}
+      break;
+  }
 }
 
 //******************************************************************************
