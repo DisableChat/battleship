@@ -43,12 +43,12 @@ bool check_repeat_fire(vector<vector<int> > &enemy_board,
                         int x,
                         int y)
 {
-	if (enemy_board[y][x] == 3 || enemy_board[y][x] == 2)
-	{
-		return true;
-	}
-	else{return false;}
-}
+  if (enemy_board[y][x] == 3 || enemy_board[y][x] == 2)
+  {
+    return true;
+  }
+  else{return false;}
+  }
 
 //******************************************************************************
 // Function:      update_board()
@@ -71,69 +71,69 @@ void update_board(vector<vector<int> > &board,
                   string &anoucment)
 {
 
-	// Declaring local vars
-	string tmp;
-	string endDelimiter  = "*";
-	string delimiter     = "\n";
-	string delimiter2    = "-";
-	int hit              = -1;
-	int pos              = 0;
-	int score            = 0;
-	int tmp_pos          = 0;
+  // Declaring local vars
+  string tmp;
+  string endDelimiter  = "*";
+  string delimiter     = "\n";
+  string delimiter2    = "-";
+  int hit              = -1;
+  int pos              = 0;
+  int score            = 0;
+  int tmp_pos          = 0;
 
-	// Parsing score
-	tmp = answer.substr(pos, answer.find(delimiter));
-	score = stoi(tmp);
+  // Parsing score
+  tmp = answer.substr(pos, answer.find(delimiter));
+  score = stoi(tmp);
 
-	// If not game over (-1 is a unique indentifier in this case)
-	if(score != -1)	{
-		// Updating client enemy board
-		enemy_board[y][x] = score;
+  // If not game over (-1 is a unique indentifier in this case)
+  if(score != -1)	{
+    // Updating client enemy board
+    enemy_board[y][x] = score;
 
-		int x2;
-		int y2;
+    int x2;
+    int y2;
 
-		// The proceeding code just parses the cordinates and hit value
-		tmp_pos = answer.find(delimiter);
-		pos = answer.find(delimiter2, tmp_pos);
-		tmp = answer.substr(tmp_pos, pos - tmp_pos);
-		y2 = stoi(tmp);
+    // The proceeding code just parses the cordinates and hit value
+    tmp_pos = answer.find(delimiter);
+    pos = answer.find(delimiter2, tmp_pos);
+    tmp = answer.substr(tmp_pos, pos - tmp_pos);
+    y2 = stoi(tmp);
 
-		tmp_pos = pos + 1;
-		pos = answer.find(delimiter2, tmp_pos);
-		tmp = answer.substr(tmp_pos, pos - tmp_pos);
-		x2 = stoi(tmp);
+    tmp_pos = pos + 1;
+    pos = answer.find(delimiter2, tmp_pos);
+    tmp = answer.substr(tmp_pos, pos - tmp_pos);
+    x2 = stoi(tmp);
 
-		tmp_pos = pos + 1;
-		pos = answer.find(delimiter2, tmp_pos);
-		tmp = answer.substr(tmp_pos, pos - tmp_pos);
+    tmp_pos = pos + 1;
+    pos = answer.find(delimiter2, tmp_pos);
+    tmp = answer.substr(tmp_pos, pos - tmp_pos);
 
-		hit = stoi(tmp);
-		board[y2][x2] = hit;
+    hit = stoi(tmp);
+    board[y2][x2] = hit;
 
-	}
-	// Game over case
-	else
-	{
-		pos += answer.find(delimiter) + 1;
-		enemy_board[y][x] = 2;
-		anoucment = answer.substr(pos, answer.find(endDelimiter) - 3);
+  }
+  // Game over case
+  else
+  {
+    pos += answer.find(delimiter) + 1;
+    enemy_board[y][x] = 2;
+    anoucment = answer.substr(pos, answer.find(endDelimiter) - 3);
 
-		// I will admit this section right here is bad because I added cordinates
-		// to end mssg after end game siuation when I already add them to the string
-		// server side but if the games over for some reason I add them to the end.
-		// Idk what I was thinking at the time.
-		// REFER TO REFERENCE *REF* on server.cc
-		string tmp_x;
-		string tmp_y;
-		string tmp_h;
-		tmp_y = answer.substr(answer.find(endDelimiter) + 1, 1);
-		tmp_x = answer.substr(answer.find(endDelimiter) + 3, 1);
-		tmp_h = answer.substr(answer.find(endDelimiter) + 5, 1);
-		board[stoi(tmp_y)][stoi(tmp_x)] = stoi(tmp_h);
+    // I will admit this section right here is bad because I added cordinates
+    // to end mssg after end game siuation when I already add them to the string
+    // server side but if the games over for some reason I add them to the end.
+    // Idk what I was thinking at the time.
+    // REFER TO REFERENCE *REF* on server.cc
+    string tmp_x;
+    string tmp_y;
+    string tmp_h;
+    tmp_y = answer.substr(answer.find(endDelimiter) + 1, 1);
+    tmp_x = answer.substr(answer.find(endDelimiter) + 3, 1);
+    tmp_h = answer.substr(answer.find(endDelimiter) + 5, 1);
+    board[stoi(tmp_y)][stoi(tmp_x)] = stoi(tmp_h);
 
-		GAMEOVER = true;
-	}
+    GAMEOVER = true;
+  }
 }
 
 //******************************************************************************
