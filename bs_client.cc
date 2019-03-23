@@ -475,230 +475,229 @@ main(int argc, char* argv[]) {
         }
         // Rotating ship, for ship placement handle
         while (exit_console == false && turn == true && (ch2 = getch()) != 'r' && ship_placement == false) {
+          // Used to make sure user cant double space on place to send one piece
+          // instead of the whole ship
+          int pieces_counter = 0;
 
-				// Used to make sure user cant double space on place to send one piece
-				// instead of the whole ship
-				int pieces_counter = 0;
+          // Proceding code implementation works by having a rotation value based
+          // on the ship orientation, based on KEY_LEFT or KEY_RIGHT we update
+          // rotation and place the ship
+          switch(ch2) {
+          	// Key Left case
+          	case KEY_LEFT:
+          	rotation--;
+          	if (rotation < 1){
+          		rotation = 8;
+          	}
+          	if (rotation == 8) {
+          		valid_placement = check_move(x, y, rotation);
+          		if(valid_placement == true){
+          			ship_clean(board, x, y);
+          			board[cur_row-1][cur_col+1] = 1;
+          			board[cur_row-2][cur_col+2] = 1;
+          		}
+          		else{rotation = 7;}
+          	}
+          	if (rotation == 7) {
+          		valid_placement = check_move(x, y, rotation);
+          		if(valid_placement == true){
+          			ship_clean(board, x, y);
+          			board[cur_row-1][cur_col] = 1;
+          			board[cur_row-2][cur_col] = 1;
+          		}
+          		else{rotation = 6;}
+          	}
+          	if (rotation == 6) {
+          		valid_placement = check_move(x, y, rotation);
+          		if(valid_placement == true){
+          			ship_clean(board, x, y);
+          			board[cur_row-1][cur_col-1] = 1;
+          			board[cur_row-2][cur_col-2] = 1;
+          		}
+          		else{rotation = 5;}
+          	}
+          	if (rotation == 5) {
+          		valid_placement = check_move(x, y, rotation);
+          		if(valid_placement == true){
+          			ship_clean(board, x, y);
+          			board[cur_row][cur_col-1] = 1;
+          			board[cur_row][cur_col-2] = 1;
+          		}
+          		else{rotation = 4;}
+          	}
+          		if (rotation == 4) {
+          			valid_placement = check_move(x, y, rotation);
+          			if(valid_placement == true){
+          				ship_clean(board, x, y);
+          				board[cur_row+1][cur_col-1] = 1;
+          				board[cur_row+2][cur_col-2] = 1;
+          			}
+          			else{rotation = 3;}
+          		}
+          		if (rotation == 3) {
+          			valid_placement = check_move(x, y, rotation);
+          			if(valid_placement == true){
+          				ship_clean(board, x, y);
+          				board[cur_row+1][cur_col] = 1;
+          				board[cur_row+2][cur_col] = 1;
+          			}
+          			else{rotation = 2;}
+          		}
+          		if (rotation == 2) {
+          			valid_placement = check_move(x, y, rotation);
+          			if(valid_placement == true){
+          				ship_clean(board, x, y);
+          				board[cur_row+1][cur_col+1] = 1;
+          				board[cur_row+2][cur_col+2] = 1;
+          			}
+          			else{rotation = 1;}
+          		}
+          		if (rotation == 1) {
+          			valid_placement = check_move(x, y, rotation);
+          			if (valid_placement == true){
+          				ship_clean(board, x, y);
+          				board[cur_row][cur_col +1] = 1;
+          				board[cur_row][cur_col +2] = 1;
+          			}
+          			else{rotation = 0;}
+          		}
+          		draw_matrix(board,cur_row,cur_col, BOARD_ONE_OFFSET);
+          		refresh();
+          		break;
 
-				// Proceding code implementation works by having a rotation value based
-				// on the ship orientation, based on KEY_LEFT or KEY_RIGHT we update
-				// rotation and place the ship
-				switch(ch2) {
-					// Key Left case
-					case KEY_LEFT:
-					rotation--;
-					if (rotation < 1){
-						rotation = 8;
-					}
-					if (rotation == 8) {
-						valid_placement = check_move(x, y, rotation);
-						if(valid_placement == true){
-							ship_clean(board, x, y);
-							board[cur_row-1][cur_col+1] = 1;
-							board[cur_row-2][cur_col+2] = 1;
-						}
-						else{rotation = 7;}
-					}
-					if (rotation == 7) {
-						valid_placement = check_move(x, y, rotation);
-						if(valid_placement == true){
-							ship_clean(board, x, y);
-							board[cur_row-1][cur_col] = 1;
-							board[cur_row-2][cur_col] = 1;
-						}
-						else{rotation = 6;}
-					}
-					if (rotation == 6) {
-						valid_placement = check_move(x, y, rotation);
-						if(valid_placement == true){
-							ship_clean(board, x, y);
-							board[cur_row-1][cur_col-1] = 1;
-							board[cur_row-2][cur_col-2] = 1;
-						}
-						else{rotation = 5;}
-					}
-					if (rotation == 5) {
-						valid_placement = check_move(x, y, rotation);
-						if(valid_placement == true){
-							ship_clean(board, x, y);
-							board[cur_row][cur_col-1] = 1;
-							board[cur_row][cur_col-2] = 1;
-						}
-						else{rotation = 4;}
-					}
-						if (rotation == 4) {
-							valid_placement = check_move(x, y, rotation);
-							if(valid_placement == true){
-								ship_clean(board, x, y);
-								board[cur_row+1][cur_col-1] = 1;
-								board[cur_row+2][cur_col-2] = 1;
-							}
-							else{rotation = 3;}
-						}
-						if (rotation == 3) {
-							valid_placement = check_move(x, y, rotation);
-							if(valid_placement == true){
-								ship_clean(board, x, y);
-								board[cur_row+1][cur_col] = 1;
-								board[cur_row+2][cur_col] = 1;
-							}
-							else{rotation = 2;}
-						}
-						if (rotation == 2) {
-							valid_placement = check_move(x, y, rotation);
-							if(valid_placement == true){
-								ship_clean(board, x, y);
-								board[cur_row+1][cur_col+1] = 1;
-								board[cur_row+2][cur_col+2] = 1;
-							}
-							else{rotation = 1;}
-						}
-						if (rotation == 1) {
-							valid_placement = check_move(x, y, rotation);
-							if (valid_placement == true){
-								ship_clean(board, x, y);
-								board[cur_row][cur_col +1] = 1;
-								board[cur_row][cur_col +2] = 1;
-							}
-							else{rotation = 0;}
-						}
-						draw_matrix(board,cur_row,cur_col, BOARD_ONE_OFFSET);
-						refresh();
-						break;
+          	// Proceding code implementation works by having a rotation value based
+          	// on the ship orientation, based on KEY_LEFT or KEY_RIGHT we update
+          	// rotation and place the ship
+          	// Key Right case
+          	case KEY_RIGHT:
+          		rotation++;
+          		if (rotation > 8){
+          			rotation = 1;
+          		}
+          		if (rotation == 1) {
+          			valid_placement = check_move(x, y, rotation);
+          			if (valid_placement == true){
+          				ship_clean(board, x, y);
+          				board[cur_row][cur_col +1] = 1;
+          				board[cur_row][cur_col +2] = 1;
+          			}
+          			else{rotation++;}
+          		}
+          		if (rotation == 2) {
+          			valid_placement = check_move(x, y, rotation);
+          			if(valid_placement == true){
+          				ship_clean(board, x, y);
+          				board[cur_row+1][cur_col+1] = 1;
+          				board[cur_row+2][cur_col+2] = 1;
+          			}
+          			else{rotation++;}
+          		}
+          		if (rotation == 3) {
+          			valid_placement = check_move(x, y, rotation);
+          			if(valid_placement == true){
+          				ship_clean(board, x, y);
+          				board[cur_row+1][cur_col] = 1;
+          				board[cur_row+2][cur_col] = 1;
+          			}
+          			else{rotation++;}
+          		}
+          		if (rotation == 4) {
+          			valid_placement = check_move(x, y, rotation);
+          			if(valid_placement == true){
+          				ship_clean(board, x, y);
+          				board[cur_row+1][cur_col-1] = 1;
+          				board[cur_row+2][cur_col-2] = 1;
+          			}
+          			else{rotation++;}
+          		}
+          		if (rotation == 5) {
+          			valid_placement = check_move(x, y, rotation);
+          			if(valid_placement == true){
+          				ship_clean(board, x, y);
+          				board[cur_row][cur_col-1] = 1;
+          				board[cur_row][cur_col-2] = 1;
+          			}
+          			else{rotation++;}
+          		}
+          		if (rotation == 6) {
+          			valid_placement = check_move(x, y, rotation);
+          			if(valid_placement == true){
+          				ship_clean(board, x, y);
+          				board[cur_row-1][cur_col-1] = 1;
+          				board[cur_row-2][cur_col-2] = 1;
+          			}
+          			else{rotation++;}
+          		}
+          		if (rotation == 7) {
+          			valid_placement = check_move(x, y, rotation);
+          			if(valid_placement == true){
+          				ship_clean(board, x, y);
+          				board[cur_row-1][cur_col] = 1;
+          				board[cur_row-2][cur_col] = 1;
+          			}
+          			else{rotation++;}
+          		}
+          		if (rotation == 8) {
+          			valid_placement = check_move(x, y, rotation);
+          			if(valid_placement == true){
+          				ship_clean(board, x, y);
+          				board[cur_row-1][cur_col+1] = 1;
+          				board[cur_row-2][cur_col+2] = 1;
+          			}
+          			else{rotation = 0;}
+          		}
+          		draw_matrix(board,cur_row,cur_col, BOARD_ONE_OFFSET);
+          		refresh();
+          		break;
+          	// Space Bar case (placement within rotation)
+          	case ' ':
+          		board[cur_row][cur_col]= 1;
+          		draw_matrix(board,cur_row,cur_col, BOARD_ONE_OFFSET);
+          		refresh();
 
-					// Proceding code implementation works by having a rotation value based
-					// on the ship orientation, based on KEY_LEFT or KEY_RIGHT we update
-					// rotation and place the ship
-					// Key Right case
-					case KEY_RIGHT:
-						rotation++;
-						if (rotation > 8){
-							rotation = 1;
-						}
-						if (rotation == 1) {
-							valid_placement = check_move(x, y, rotation);
-							if (valid_placement == true){
-								ship_clean(board, x, y);
-								board[cur_row][cur_col +1] = 1;
-								board[cur_row][cur_col +2] = 1;
-							}
-							else{rotation++;}
-						}
-						if (rotation == 2) {
-							valid_placement = check_move(x, y, rotation);
-							if(valid_placement == true){
-								ship_clean(board, x, y);
-								board[cur_row+1][cur_col+1] = 1;
-								board[cur_row+2][cur_col+2] = 1;
-							}
-							else{rotation++;}
-						}
-						if (rotation == 3) {
-							valid_placement = check_move(x, y, rotation);
-							if(valid_placement == true){
-								ship_clean(board, x, y);
-								board[cur_row+1][cur_col] = 1;
-								board[cur_row+2][cur_col] = 1;
-							}
-							else{rotation++;}
-						}
-						if (rotation == 4) {
-							valid_placement = check_move(x, y, rotation);
-							if(valid_placement == true){
-								ship_clean(board, x, y);
-								board[cur_row+1][cur_col-1] = 1;
-								board[cur_row+2][cur_col-2] = 1;
-							}
-							else{rotation++;}
-						}
-						if (rotation == 5) {
-							valid_placement = check_move(x, y, rotation);
-							if(valid_placement == true){
-								ship_clean(board, x, y);
-								board[cur_row][cur_col-1] = 1;
-								board[cur_row][cur_col-2] = 1;
-							}
-							else{rotation++;}
-						}
-						if (rotation == 6) {
-							valid_placement = check_move(x, y, rotation);
-							if(valid_placement == true){
-								ship_clean(board, x, y);
-								board[cur_row-1][cur_col-1] = 1;
-								board[cur_row-2][cur_col-2] = 1;
-							}
-							else{rotation++;}
-						}
-						if (rotation == 7) {
-							valid_placement = check_move(x, y, rotation);
-							if(valid_placement == true){
-								ship_clean(board, x, y);
-								board[cur_row-1][cur_col] = 1;
-								board[cur_row-2][cur_col] = 1;
-							}
-							else{rotation++;}
-						}
-						if (rotation == 8) {
-							valid_placement = check_move(x, y, rotation);
-							if(valid_placement == true){
-								ship_clean(board, x, y);
-								board[cur_row-1][cur_col+1] = 1;
-								board[cur_row-2][cur_col+2] = 1;
-							}
-							else{rotation = 0;}
-						}
-						draw_matrix(board,cur_row,cur_col, BOARD_ONE_OFFSET);
-						refresh();
-						break;
-					// Space Bar case (placement within rotation)
-					case ' ':
-						board[cur_row][cur_col]= 1;
-						draw_matrix(board,cur_row,cur_col, BOARD_ONE_OFFSET);
-						refresh();
+          		for (int i=0;i<4;i++) {
+          			for (int j=0;j<4;j++) {
+          				if( board[i][j] == 1){
+          					pieces_counter++;
+          				}
+          			}
+          		}
+          		if (pieces_counter == 3)
+          		{
+          			ship_placement = true;
+          			ship_placement_cor = get_ship_place_cor(board);
 
-						for (int i=0;i<4;i++) {
-							for (int j=0;j<4;j++) {
-								if( board[i][j] == 1){
-									pieces_counter++;
-								}
-							}
-						}
-						if (pieces_counter == 3)
-						{
-							ship_placement = true;
-							ship_placement_cor = get_ship_place_cor(board);
+          			// Send ship placement location to server
+          			boost::asio::write( socket, boost::asio::buffer(ship_placement_cor) );
 
-							// Send ship placement location to server
-							boost::asio::write( socket, boost::asio::buffer(ship_placement_cor) );
+          			// Waiting on the ship placement notifcation from other client to
+          			// this creates a barrier for players to wait on eachother
+          			while(!continue_gate)
+          			{
+          				continue_gate = true;
+          				boost::asio::streambuf response_block;
+          				boost::asio::read_until( socket, response_block, "|" );
+          				string block = boost::asio::buffer_cast<const char*>(response_block.data());
+          				string tmp = block.substr(0, block.find("|"));
+          				p_v = tmp;
+          			}
+          			// Moving the curor back to new location
+          			move(ATACK_START_Y, ATACK_START_X);
+          			cur_row = 0;
+          			cur_col = 0;
+          		}
+          		break;
 
-							// Waiting on the ship placement notifcation from other client to
-							// this creates a barrier for players to wait on eachother
-							while(!continue_gate)
-							{
-								continue_gate = true;
-								boost::asio::streambuf response_block;
-								boost::asio::read_until( socket, response_block, "|" );
-								string block = boost::asio::buffer_cast<const char*>(response_block.data());
-								string tmp = block.substr(0, block.find("|"));
-								p_v = tmp;
-							}
-							// Moving the curor back to new location
-							move(ATACK_START_Y, ATACK_START_X);
-							cur_row = 0;
-							cur_col = 0;
-						}
-						break;
-
-					// Esc key case
-					case 27:
-						turn = false;
-						ship_clean(board, x, y);
-						refresh();
-						board[y][x] = 0;
-						draw_matrix(board,cur_row,cur_col, BOARD_ONE_OFFSET);
-					}
-				}
-      break;
+          	// Esc key case
+          	case 27:
+          		turn = false;
+          		ship_clean(board, x, y);
+          		refresh();
+          		board[y][x] = 0;
+          		draw_matrix(board,cur_row,cur_col, BOARD_ONE_OFFSET);
+            }
+          }
+          break;
 
     // The proceding arrow key cases are for moving a single unit location
     // Key Right case
