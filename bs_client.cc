@@ -412,9 +412,9 @@ main(int argc, char* argv[]) {
 				if(!check_repeat_fire(enemy_board, x, y))
 				{
 					// local vars
-					string target_loc	= "";
-					string tmp_x 			= "";
-					string tmp_y			= "";
+					string target_loc  = "";
+					string tmp_x       = "";
+					string tmp_y       = "";
 
 					// Draw and send information on fire location
 					draw_matrix(board, 0, 0, BOARD_ONE_OFFSET);
