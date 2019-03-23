@@ -203,7 +203,7 @@ bool check_move(int x, int y,int rotation) {
       if((x + 2) >= 4){return false;}
       else{return true;}
       break;
-		case 2:
+    case 2:
       if((x + 2) >= 4 || (y + 2) >= 4){return false;}
       else{return true;}
       break;
@@ -320,8 +320,7 @@ main(int argc, char* argv[]) {
   const char* player_number = "Player ?";
   const char* numVal;
 
-
-	// Blob information
+  // Blob information
   string ship_placement_cor = "";
   int x_cord_ally           = 0;
   int y_cord_ally           = 0;
