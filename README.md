@@ -12,7 +12,7 @@ How To Launch:
   *Launching Game NOTE* open 3 terminals, launch server first, then
         launch first client, then launch second client. DO NOT launch
         clients first. If you mess this launching order up restart the
-        Launching Game Note order.
+        Launching Game NOTE (relaunch the applications in said order)
 
   Launch Server:
   -----------------------------------------------------------
