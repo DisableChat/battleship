@@ -322,11 +322,11 @@ main(int argc, char* argv[]) {
 
 
 	// Blob information
-  string ship_placement_cor  = "";
-  int x_cord_ally		= 0;
-  int y_cord_ally		= 0;
-  int x_cord_enemy	= 0;
-  int y_cord_enemy	= 0;
+  string ship_placement_cor = "";
+  int x_cord_ally           = 0;
+  int y_cord_ally           = 0;
+  int x_cord_enemy          = 0;
+  int y_cord_enemy          = 0;
 
   // Setting up empty boards for ally and enemy
   vector<vector<int> > board;
@@ -373,12 +373,12 @@ main(int argc, char* argv[]) {
   mvprintw(BOARD_TWO_OFFSET - 1, 0, "- Enemy -");
 
   // Display player number
-	mvprintw(0, 12, "==============");
-	mvprintw(1, 12, "][");
-	mvprintw(1, 15, player_number);
-	mvprintw(1, 24, "][");
-	mvprintw(2, 12, "==============");
-	refresh();
+  mvprintw(0, 12, "==============");
+  mvprintw(1, 12, "][");
+  mvprintw(1, 15, player_number);
+  mvprintw(1, 24, "][");
+  mvprintw(2, 12, "==============");
+  refresh();
 
 	// Draw the enemy and ally board
 	draw_matrix(enemy_board, 0, 0, BOARD_TWO_OFFSET);
