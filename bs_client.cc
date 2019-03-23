@@ -380,102 +380,102 @@ main(int argc, char* argv[]) {
   mvprintw(2, 12, "==============");
   refresh();
 
-	// Draw the enemy and ally board
-	draw_matrix(enemy_board, 0, 0, BOARD_TWO_OFFSET);
+  // Draw the enemy and ally board
+  draw_matrix(enemy_board, 0, 0, BOARD_TWO_OFFSET);
   draw_matrix(board,0, 0, BOARD_ONE_OFFSET);
 
   // I/O Loop
   // Stop when the q Key is hit.
-  while (exit_console == false && (ch = getch())!='q') {
+  while (exit_console == false && (ch = getch())!='q')
+  {
     switch (ch) {
-    case ' ':
-			turn = true;
-			x = cur_col;
-			y = cur_row;
+      case ' ':
+        turn = true;
+        x = cur_col;
+        y = cur_row;
 
-			// Clearing section of screen for case when user repeat fires
-			mvprintw(BOARD_BOTTOM - 2, 0,  "                              ");
-			mvprintw(BOARD_BOTTOM - 1, 0,  "                              ");
-			mvprintw(BOARD_BOTTOM, 0,  "                              ");
+        // Clearing section of screen for case when user repeat fires
+        mvprintw(BOARD_BOTTOM - 2, 0,  "                              ");
+        mvprintw(BOARD_BOTTOM - 1, 0,  "                              ");
+        mvprintw(BOARD_BOTTOM, 0,  "                              ");
 
-			// Handle based on if ship is placed yet or not
-			if (!ship_placement) {
-				draw_matrix(enemy_board, 0 ,0, BOARD_TWO_OFFSET);
-				board[cur_row][cur_col]= 1;
-				draw_matrix(board,cur_row,cur_col, BOARD_ONE_OFFSET);
-				refresh();
-			}
-			// Fire on enemy handle
-			else
-			{
-				if(p_v == "1"){mvprintw(1, 22, "1");}
-				else if(p_v == "2"){mvprintw(1, 22, "2");}
-				if(!check_repeat_fire(enemy_board, x, y))
-				{
-					// local vars
-					string target_loc  = "";
-					string tmp_x       = "";
-					string tmp_y       = "";
+        // Handle based on if ship is placed yet or not
+        if (!ship_placement) {
+          draw_matrix(enemy_board, 0 ,0, BOARD_TWO_OFFSET);
+          board[cur_row][cur_col]= 1;
+          draw_matrix(board,cur_row,cur_col, BOARD_ONE_OFFSET);
+          refresh();
+        }
+        // Fire on enemy handle
+        else
+        {
+          if(p_v == "1"){mvprintw(1, 22, "1");}
+          else if(p_v == "2"){mvprintw(1, 22, "2");}
+          if(!check_repeat_fire(enemy_board, x, y))
+          {
+            // local vars
+            string target_loc  = "";
+            string tmp_x       = "";
+            string tmp_y       = "";
 
-					// Draw and send information on fire location
-					draw_matrix(board, 0, 0, BOARD_ONE_OFFSET);
-					enemy_board[cur_row][cur_col]= 1;
-					draw_matrix(enemy_board, cur_row, cur_col, BOARD_TWO_OFFSET);
-					refresh();
-					tmp_y = to_string(cur_row);
-					tmp_x = to_string(cur_col);
-					target_loc.append(tmp_y).append("-").append(tmp_x).append("\n");
-					boost::asio::write( socket, boost::asio::buffer(target_loc) );
+            // Draw and send information on fire location
+            draw_matrix(board, 0, 0, BOARD_ONE_OFFSET);
+            enemy_board[cur_row][cur_col]= 1;
+            draw_matrix(enemy_board, cur_row, cur_col, BOARD_TWO_OFFSET);
+            refresh();
+            tmp_y = to_string(cur_row);
+            tmp_x = to_string(cur_col);
+            target_loc.append(tmp_y).append("-").append(tmp_x).append("\n");
+            boost::asio::write( socket, boost::asio::buffer(target_loc) );
 
 
-					// Get the response from the server
-					boost::asio::streambuf response_value;
-					boost::asio::read_until( socket, response_value, "\n" );
-					string answer = boost::asio::buffer_cast<const char*>(response_value.data());
+            // Get the response from the server
+            boost::asio::streambuf response_value;
+            boost::asio::read_until( socket, response_value, "\n" );
+            string answer = boost::asio::buffer_cast<const char*>(response_value.data());
 
-					// Update boards and draw boards based on recieved information from
-					// Server regarding the shot user just took
-					update_board(board, enemy_board, x, y, answer, anoucment);
-					draw_matrix(board, 0, 0, BOARD_ONE_OFFSET);
-					draw_matrix(enemy_board, cur_row, cur_col, BOARD_TWO_OFFSET);
+            // Update boards and draw boards based on recieved information from
+            // Server regarding the shot user just took
+            update_board(board, enemy_board, x, y, answer, anoucment);
+            draw_matrix(board, 0, 0, BOARD_ONE_OFFSET);
+            draw_matrix(enemy_board, cur_row, cur_col, BOARD_TWO_OFFSET);
 
-					// If Game over display end game
-					if (GAMEOVER == true)
-					{
-						const char *endG_anoucment;
-						endG_anoucment = anoucment.c_str();
-						mvprintw(BOARD_BOTTOM - 2, 0, "#################");
-						mvprintw(BOARD_BOTTOM - 1, 0, "# ");
-						mvprintw(BOARD_BOTTOM - 1, 2, endG_anoucment);
-						mvprintw(BOARD_BOTTOM - 1, 16, "#");
-						mvprintw(BOARD_BOTTOM, 0, "#################");
-						move(BOARD_BOTTOM - 3, 8);
+            // If Game over display end game
+            if (GAMEOVER == true)
+            {
+              const char *endG_anoucment;
+              endG_anoucment = anoucment.c_str();
+              mvprintw(BOARD_BOTTOM - 2, 0, "#################");
+              mvprintw(BOARD_BOTTOM - 1, 0, "# ");
+              mvprintw(BOARD_BOTTOM - 1, 2, endG_anoucment);
+              mvprintw(BOARD_BOTTOM - 1, 16, "#");
+              mvprintw(BOARD_BOTTOM, 0, "#################");
+              move(BOARD_BOTTOM - 3, 8);
 
-						// Once game is over Make user only be able to hit q to quit
-						while((exit_ = getch())!='q')
-						{
-							mvprintw(BOARD_BOTTOM - 3, 8, " ");
-							move(BOARD_BOTTOM - 3, 8);
-						}
-						exit_console = true;
-					}
-					refresh();
-
-				}
-				// If user trys to fire on already fired location handle
-				else
-				{
-					mvprintw(BOARD_BOTTOM - 2, 0, "##############################");
-					mvprintw(BOARD_BOTTOM - 1, 0, "# ");
-					mvprintw(BOARD_BOTTOM - 1, 2 , "!!! Already Fired Here !!!");
-					mvprintw(BOARD_BOTTOM - 1, 29, "#");
-					mvprintw(BOARD_BOTTOM, 0, "##############################");
-					draw_matrix(enemy_board, cur_row, cur_col, BOARD_TWO_OFFSET);
-					refresh();
-				}
-			}
-			// Rotating ship, for ship placement handle
-			while (exit_console == false && turn == true && (ch2 = getch()) != 'r' && ship_placement == false) {
+              // Once game is over Make user only be able to hit q to quit
+              while((exit_ = getch())!='q')
+              {
+                mvprintw(BOARD_BOTTOM - 3, 8, " ");
+                move(BOARD_BOTTOM - 3, 8);
+              }
+              exit_console = true;
+            }
+            refresh();
+          }
+          // If user trys to fire on already fired location handle
+          else
+          {
+            mvprintw(BOARD_BOTTOM - 2, 0, "##############################");
+            mvprintw(BOARD_BOTTOM - 1, 0, "# ");
+            mvprintw(BOARD_BOTTOM - 1, 2 , "!!! Already Fired Here !!!");
+            mvprintw(BOARD_BOTTOM - 1, 29, "#");
+            mvprintw(BOARD_BOTTOM, 0, "##############################");
+            draw_matrix(enemy_board, cur_row, cur_col, BOARD_TWO_OFFSET);
+            refresh();
+          }
+        }
+        // Rotating ship, for ship placement handle
+        while (exit_console == false && turn == true && (ch2 = getch()) != 'r' && ship_placement == false) {
 
 				// Used to make sure user cant double space on place to send one piece
 				// instead of the whole ship
