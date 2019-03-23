@@ -1,12 +1,12 @@
 //******************************************************************************
-// File:					bs_client.cc
-// Author:				Wesley Ryder
-// Date:					3/20/19
-// Description:		This is the battleship client, where the user controls
-//								his/hers ship, and firing locations to try and sink enemy
-//								ship. This implementation uses Sockets to make a client
-//								and server based application. Where the server is essentialy
-//								the ref and the cients being the players
+// File:          bs_client.cc
+// Author:        Wesley Ryder
+// Date:          3/20/19
+// Description:   his is the battleship client, where the user controls
+//                his/hers ship, and firing locations to try and sink enemy
+//                ship. This implementation uses Sockets to make a client
+//                and server based application. Where the server is essentialy
+//                the ref and the cients being the players
 //******************************************************************************
 
 #include <iostream>
@@ -20,28 +20,28 @@ using boost::asio::ip::tcp;
 
 
 // Creating Global Variales
-const int BOARD_ONE_OFFSET	= 1;
-const int BOARD_TWO_OFFSET	= 12;
-const int BOARD_BOTTOM			= 24;
-const int ATACK_START_Y			= 13;
-const int ATACK_START_X			= 1;
-bool GAMEOVER 							= false;
+const int BOARD_ONE_OFFSET  = 1;
+const int BOARD_TWO_OFFSET  = 12;
+const int BOARD_BOTTOM      = 24;
+const int ATACK_START_Y     = 13;
+const int ATACK_START_X     = 1;
+bool GAMEOVER               = false;
 
 
 
 //******************************************************************************
 // Function:      check_repeat_fire()
 // Arguments:     vector<vector<int> > &enemy_board
-//								int x
-//								in y
+//                int x
+//                in y
 // Description:   Checks if the firing location has already been fired on where
-//								true:		Fired on this location already
-//								false: 	Have not fired on this location thus far
+//                true:		Fired on this location already
+//                false: 	Have not fired on this location thus far
 // Return Val:    bool
 //******************************************************************************
 bool check_repeat_fire(vector<vector<int> > &enemy_board,
-												int x,
-												int y)
+                        int x,
+                        int y)
 {
 	if (enemy_board[y][x] == 3 || enemy_board[y][x] == 2)
 	{
@@ -53,33 +53,33 @@ bool check_repeat_fire(vector<vector<int> > &enemy_board,
 //******************************************************************************
 // Function:      update_board()
 // Arguments:     vector<vector<int> > &board
-//								vector<vector<int> > &enemy_board
-//								int x
-//								int y
-//								string answer
-//								string &anoucment
+//                vector<vector<int> > &enemy_board
+//                int x
+//                int y
+//                string answer
+//                string &anoucment
 // Description:   updates boards after reicieving information based on previous
-//								turn, this updates both client side's ally board and enemy
-//								board
+//                turn, this updates both client side's ally board and enemy
+//                board
 // Return Val:    None
 //******************************************************************************
 void update_board(vector<vector<int> > &board,
-												vector<vector<int> > &enemy_board,
-												int x,
-												int y,
-												string answer,
-												string &anoucment)
+                  vector<vector<int> > &enemy_board,
+                  int x,
+                  int y,
+                  string answer,
+                  string &anoucment)
 {
 
 	// Declaring local vars
 	string tmp;
-	string endDelimiter = "*";
-	string delimiter		= "\n";
-	string delimiter2 	= "-";
-	int hit 						= -1;
-	int pos 						= 0;
-	int score 					= 0;
-	int tmp_pos 				= 0;
+	string endDelimiter  = "*";
+	string delimiter     = "\n";
+	string delimiter2    = "-";
+	int hit              = -1;
+	int pos              = 0;
+	int score            = 0;
+	int tmp_pos          = 0;
 
 	// Parsing score
 	tmp = answer.substr(pos, answer.find(delimiter));
@@ -144,20 +144,20 @@ void update_board(vector<vector<int> > &board,
 //******************************************************************************
 string get_ship_place_cor(vector<vector<int> > &board)
 {
-	string coridinates		= "";
+  string coridinates = "";
+  string x           = "";
+  string y           = "";
 
-	string x = "";
-	string y = "";
 
-	for (int i=0;i<4;i++) {
-		for (int j=0;j<4;j++) {
-			if( board[i][j] == 1){
-				x = to_string(i);
-				y = to_string(j);
-				coridinates.append(x).append("-").append(y).append("-");
-			}
-		}
-	}
+  for (int i=0;i<4;i++) {
+    for (int j=0;j<4;j++) {
+      if( board[i][j] == 1){
+        x = to_string(i);
+        y = to_string(j);
+        coridinates.append(x).append("-").append(y).append("-");
+      }
+    }
+  }
 	coridinates.pop_back();
 	coridinates.append("\n");
 	return coridinates;
@@ -166,8 +166,8 @@ string get_ship_place_cor(vector<vector<int> > &board)
 //******************************************************************************
 // Function:      ship_clean()
 // Arguments:     vector<vector<int> > &board
-//								int x
-//								int y
+//                int x
+//                int y
 // Description:   Sets values of previous ship placement to 0 ie empty
 // Return Val:    None
 //******************************************************************************
@@ -186,11 +186,11 @@ void ship_clean(vector<vector<int> > &board, int x, int y)
 //******************************************************************************
 // Function:      check_move()
 // Arguments:     int x
-//								int y
-//								int rotation
+//                int y
+//                int rotation
 // Description:   Checks if the rotation of the ship is a valid option where
-//								true:		valid option
-//								false:	invalid option
+//                true:		valid option
+//                false:	invalid option
 // Return Val:    bool
 //******************************************************************************
 bool check_move(int x, int y,int rotation) {
@@ -236,19 +236,20 @@ bool check_move(int x, int y,int rotation) {
 //******************************************************************************
 // Function:      draw_matrix()
 // Arguments:     vector<vector<int> > &board
-//								int cur_row
-//								int cur_col
-//								int y_start (offset for second board)
+//                int cur_row
+//                int cur_col
+//                int y_start (offset for second board)
 // Description:   Draws the grid
 // Return Val:    None
 //******************************************************************************
 void draw_matrix(vector<vector<int> > &board,
-		     int cur_row,
-		     int cur_col,
-			 	 int y_start ) {
+                  int cur_row,
+                  int cur_col,
+                  int y_start )
+{
 
-		for (int j=0;j<4;j++) {
-    	move(y_start, 2*j);
+    for (int j=0;j<4;j++) {
+      move(y_start, 2*j);
      	printw("+-");
    }
    move(y_start, 2*4);
@@ -287,68 +288,68 @@ void draw_matrix(vector<vector<int> > &board,
 //******************************************************************************
 // Function:      main()
 // Arguments:     int argc
-//								char* argv[]
-// Description:  	Basically the meat and potatoes of the client, where main
-//								calls the nessary functions to setup the game and send/recieve
-//								the information from server regarding the state of the game
-//								and updates the local side for the user
+//                char* argv[]
+// Description:   Basically the meat and potatoes of the client, where main
+//                calls the nessary functions to setup the game and send/recieve
+//                the information from server regarding the state of the game
+//                and updates the local side for the user
 // Return Val:    None
 //******************************************************************************
 main(int argc, char* argv[]) {
-	// Declarying a lot of local variables which is probably bad rip
+  // Declarying a lot of local variables which is probably bad rip
   int rows;
   int cols;
   int cur_row=0;
   int cur_col=0;
   int ch;
 
-	int ch2;
-	int rotation					= 0;
-	bool turn							= true;
-	bool ship_placement		= false;
-	bool valid_placement	= true;
-	int x									= 0;
-	int y									= 0;
-	bool continue_gate 		= false;
-	bool exit_console			= false;
- 	int exit_;
+  int ch2;
+  int rotation          = 0;
+  bool turn             = true;
+  bool ship_placement   = false;
+  bool valid_placement  = true;
+  int x                 = 0;
+  int y                 = 0;
+  bool continue_gate    = false;
+  bool exit_console     = false;
+  int exit_;
 
-	string anoucment 					= "";
-	string p_v 								= "?";
-	const char* player_number = "Player ?";
-	const char* numVal;
+  string anoucment          = "";
+  string p_v                = "?";
+  const char* player_number = "Player ?";
+  const char* numVal;
 
 
 	// Blob information
-	string ship_placement_cor	= "";
-	int x_cord_ally		= 0;
-	int y_cord_ally		= 0;
-	int x_cord_enemy	= 0;
-	int y_cord_enemy	= 0;
+  string ship_placement_cor  = "";
+  int x_cord_ally		= 0;
+  int y_cord_ally		= 0;
+  int x_cord_enemy	= 0;
+  int y_cord_enemy	= 0;
 
-	// Setting up empty boards for ally and enemy
+  // Setting up empty boards for ally and enemy
   vector<vector<int> > board;
-	vector<vector<int> > enemy_board;
+  vector<vector<int> > enemy_board;
   for (int i=0;i<4;i++) {
     vector<int> t;
     for (int j=0;j<4;j++) {
       t.push_back(0);
     }
     board.push_back(t);
-		enemy_board.push_back(t);
+    enemy_board.push_back(t);
   }
 
-	// Setting up client connection
-	int portno = atoi(argv[2]);
+  // Setting up client connection
+  int portno = atoi(argv[2]);
   // Standard boost code to connect to a server.
   // Comes from the boost tutorial
   boost::asio::io_service my_service;
-	tcp::resolver resolver(my_service);
+  tcp::resolver resolver(my_service);
 
-	// Find the server/port number.
-	//  tcp::resolver::results_type endpoints = resolver.resolve(argv[2], argv[3]);
-	tcp::socket socket(my_service);
-	socket.connect(tcp::endpoint(boost::asio::ip::address::from_string(argv[1]),portno));
+  // Find the server/port number.
+  //  tcp::resolver::results_type endpoints = resolver.resolve(argv[2], argv[3]);
+  tcp::socket socket(my_service);
+  socket.connect(tcp::endpoint(boost::asio::ip::address::from_string(argv[1]),portno));
 
   // Screen initialization
   initscr();
@@ -356,9 +357,9 @@ main(int argc, char* argv[]) {
   clear();
   // Get the size of the window!
   getmaxyx(stdscr,rows,cols);
-	// Pass all characters to this program!
+  // Pass all characters to this program!
   cbreak();
-	// Grab the special keys, arrow keys, etc.
+  // Grab the special keys, arrow keys, etc.
   keypad(stdscr, TRUE);
 
   // Paint the row and column markers.
@@ -366,11 +367,11 @@ main(int argc, char* argv[]) {
   // Redraw the screen.
   refresh();
 
-	// Drawing initial boards with added pizaz
-	mvprintw(0, 0, "+ Allies +");
-	mvprintw(BOARD_TWO_OFFSET - 1, 0, "- Enemy -");
+  // Drawing initial boards with added pizaz
+  mvprintw(0, 0, "+ Allies +");
+  mvprintw(BOARD_TWO_OFFSET - 1, 0, "- Enemy -");
 
-	// Display player number
+  // Display player number
 	mvprintw(0, 12, "==============");
 	mvprintw(1, 12, "][");
 	mvprintw(1, 15, player_number);
@@ -478,7 +479,7 @@ main(int argc, char* argv[]) {
 				// Used to make sure user cant double space on place to send one piece
 				// instead of the whole ship
 				int pieces_counter = 0;
-				
+
 				// Proceding code implementation works by having a rotation value based
 				// on the ship orientation, based on KEY_LEFT or KEY_RIGHT we update
 				// rotation and place the ship
@@ -699,8 +700,8 @@ main(int argc, char* argv[]) {
 				}
       break;
 
-		// The proceding arrow key cases are for moving a single unit location
-		// Key Right case
+    // The proceding arrow key cases are for moving a single unit location
+    // Key Right case
     case KEY_RIGHT:
       cur_col++;
       cur_col%=4;
@@ -713,7 +714,7 @@ main(int argc, char* argv[]) {
 			}
 			refresh();
       break;
-		// Key Left case
+      // Key Left case
     case KEY_LEFT:
       cur_col--;
       cur_col = (4+cur_col)%4;
@@ -726,7 +727,7 @@ main(int argc, char* argv[]) {
 			}
 			refresh();
       break;
-		// Key Up case
+      // Key Up case
     case KEY_UP:
       cur_row--;
       cur_row=(4+cur_row) % 4;
@@ -739,7 +740,7 @@ main(int argc, char* argv[]) {
 			}
 			refresh();
       break;
-		// Key Down case
+      // Key Down case
     case KEY_DOWN:
       cur_row++;
       cur_row%=4;
