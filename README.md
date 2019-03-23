@@ -45,21 +45,28 @@ Key Bindings:
 ===============================================================================
 1) Placing initial Ship Steps:
 --------------------------------------------------------------
-    *ref* -> Move Around
-    KEY_LEFT  : move left
-    KEY_RIGHT : move right
-    KEY_UP    : move up
-    KEY_DOWN  : move down
 
-    SPACE (1st press) : place initial position
-    ----------------------------------------------------------
-    KEY_LEFT  : rotate ship <counter clock wise>
-    KEY_RIGHT : rotate ship <clock wise>
-
-    ESC_KEY   : step back to placing initial position
+|===> *ref* -> Move Around
+|     KEY_LEFT  : move left
+|l    KEY_RIGHT : move right
+|o    KEY_UP    : move up
+|o    KEY_DOWN  : move down
+|p
+|    SPACE (1st press) : place initial position then use the
+|b                        left and right arrow keys to rotate
+|a                        ship.
+|c    ----------------------------------------------------------
+|k    KEY_LEFT  : rotate ship <counter clock wise>
+|     KEY_RIGHT : rotate ship <clock wise>
+|
+|____ ESC_KEY   : step back to placing initial position
                 (reverts back to step *ref* -> Move Around)
+                note after user presses ESC_KEY he or she
+                can then use the four arrow keys to move
+                around to place initial piece again.
 
-    SPACE(2nd press) : confirm ship placement
+    SPACE(2nd press) : confirm ship placement after ship has
+                        been rotated to desired possition
 
 2) Firing On Enemy Steps:
 --------------------------------------------------------------
@@ -72,4 +79,4 @@ Key Bindings:
 
 3) Endgame:
 --------------------------------------------------------------
-    ESC_KEY : exit game
+    KEY_Q : exit game (q key on keyboard)

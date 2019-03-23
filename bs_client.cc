@@ -475,6 +475,10 @@ main(int argc, char* argv[]) {
 			// Rotating ship, for ship placement handle
 			while (exit_console == false && turn == true && (ch2 = getch()) != 'r' && ship_placement == false) {
 
+				// Used to make sure user cant double space on place to send one piece
+				// instead of the whole ship
+				int pieces_counter = 0;
+				
 				// Proceding code implementation works by having a rotation value based
 				// on the ship orientation, based on KEY_LEFT or KEY_RIGHT we update
 				// rotation and place the ship
@@ -650,27 +654,38 @@ main(int argc, char* argv[]) {
 						board[cur_row][cur_col]= 1;
 						draw_matrix(board,cur_row,cur_col, BOARD_ONE_OFFSET);
 						refresh();
-						ship_placement = true;
-						ship_placement_cor = get_ship_place_cor(board);
 
-						// Send ship placement location to server
-						boost::asio::write( socket, boost::asio::buffer(ship_placement_cor) );
-
-						// Waiting on the ship placement notifcation from other client to
-						// this creates a barrier for players to wait on eachother
-						while(!continue_gate)
-						{
-							continue_gate = true;
-							boost::asio::streambuf response_block;
-							boost::asio::read_until( socket, response_block, "|" );
-							string block = boost::asio::buffer_cast<const char*>(response_block.data());
-							string tmp = block.substr(0, block.find("|"));
-							p_v = tmp;
+						for (int i=0;i<4;i++) {
+							for (int j=0;j<4;j++) {
+								if( board[i][j] == 1){
+									pieces_counter++;
+								}
+							}
 						}
-						// Moving the curor back to new location
-						move(ATACK_START_Y, ATACK_START_X);
-						cur_row = 0;
-						cur_col = 0;
+						if (pieces_counter == 3)
+						{
+							ship_placement = true;
+							ship_placement_cor = get_ship_place_cor(board);
+
+							// Send ship placement location to server
+							boost::asio::write( socket, boost::asio::buffer(ship_placement_cor) );
+
+							// Waiting on the ship placement notifcation from other client to
+							// this creates a barrier for players to wait on eachother
+							while(!continue_gate)
+							{
+								continue_gate = true;
+								boost::asio::streambuf response_block;
+								boost::asio::read_until( socket, response_block, "|" );
+								string block = boost::asio::buffer_cast<const char*>(response_block.data());
+								string tmp = block.substr(0, block.find("|"));
+								p_v = tmp;
+							}
+							// Moving the curor back to new location
+							move(ATACK_START_Y, ATACK_START_X);
+							cur_row = 0;
+							cur_col = 0;
+						}
 						break;
 
 					// Esc key case
